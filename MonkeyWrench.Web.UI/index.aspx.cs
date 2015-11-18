@@ -21,6 +21,8 @@ using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
 using MonkeyWrench.Web.WebServices;
 
+using System.Linq;
+
 public partial class index : System.Web.UI.Page
 {
 	int limit = 10;
@@ -99,7 +101,7 @@ public partial class index : System.Web.UI.Page
 			header_rows.Add (new StringBuilder ());
 
 		foreach (LaneTreeNode n in node.Children) {
-			header_rows [level].AppendFormat ("<td colspan='{0}'>{1}</td>", n.Leafs == 0 ? 1 : n.Leafs, n.Lane.lane);
+			header_rows [level].AppendFormat ("<td colspan='{0}'>{1} </br></br> PID: {2} </br> SID: {3}</td>", n.Leafs == 0 ? 1 : n.Leafs, n.Lane.lane, n.Lane.parent_lane_id, n.Lane.id);
 
 			WriteLanes (header_rows, n, level + 1, depth);
 		}
@@ -112,6 +114,13 @@ public partial class index : System.Web.UI.Page
 					header_rows [i].Append ("<td colspan='1'>-</td>");
 				}
 			}
+			// Empty all the way down
+			if(node.HostLanes.Count == 0)
+				for (int i = level; i < depth; i++) {
+					if (header_rows.Count <= i)
+						header_rows.Add (new StringBuilder ());
+					header_rows [i].Append ("<td colspan='1'>-</td>");
+				}
 		}
 	}
 
@@ -128,7 +137,7 @@ public partial class index : System.Web.UI.Page
 				return;
 
 			if (target.HostLanes.Count == 0) {
-				matrix.Append ("<td>-</td>");
+				matrix.Append ("<td>-</td>"); // for empty ones
 			} else {
 				foreach (DBHostLane hl in target.HostLanes) {
 					hostlane_order.Add (hl.id);
@@ -323,6 +332,69 @@ public partial class index : System.Web.UI.Page
 	}
 
 	public string GenerateOverview (FrontPageResponse data)
+	{
+		StringBuilder matrix = new StringBuilder ();
+
+		matrix.AppendLine ("<script type=\"text/javascript\">(function(document) {\n\t'use strict';\n\n\tvar LightTableFilter = (function(Arr) {\n\n\t\tvar _input;\n\n\t\tfunction _onInputEvent(e) {\n\t\t\t_input = e.target;\n\t\t\tvar tables = document.getElementsByClassName(_input.getAttribute('data-table'));\n\t\t\tArr.forEach.call(tables, function(table) {\n\t\t\t\tArr.forEach.call(table.tBodies, function(tbody) {\n\t\t\t\t\tArr.forEach.call(tbody.rows, _filter);\n\t\t\t\t});\n\t\t\t});\n\t\t}\n\n\t\tfunction _filter(row) {\n\t\t\tvar text = row.textContent.toLowerCase(), val = _input.value.toLowerCase();\n\t\t\trow.style.display = text.indexOf(val) === -1 ? 'none' : 'table-row';\n\t\t}\n\n\t\treturn {\n\t\t\tinit: function() {\n\t\t\t\tvar inputs = document.getElementsByClassName('light-table-filter');\n\t\t\t\tArr.forEach.call(inputs, function(input) {\n\t\t\t\t\tinput.oninput = _onInputEvent;\n\t\t\t\t});\n\t\t\t}\n\t\t};\n\t})(Array.prototype);\n\n\tdocument.addEventListener('readystatechange', function() {\n\t\tif (document.readyState === 'complete') {\n\t\t\tLightTableFilter.init();\n\t\t}\n\t});\n\n})(document);</script>");
+		matrix.AppendLine ("Fuzzy Filter: <input type=\"search\" class=\"light-table-filter\" data-table=\"order-table\" placeholder=\"Filter\">");
+
+		matrix.AppendLine ("<table class='buildstatus order-table table'>");
+
+		// By repo to lane to hostlane to job ---------------
+
+		// TODO
+
+		// By hostlane to lane ------------------------------
+
+		var lane_ids = data.HostLanes.Select(x => x.lane_id).Distinct();
+		foreach (var lane_id in lane_ids) {
+			List<DBHostLane> hosts_lanes = data.HostLanes.FindAll (hl => hl.lane_id == lane_id);
+			int count = hosts_lanes.Count;
+			if (count == 0)
+				continue;
+			
+			if (count == 1) {
+				var rev = FindRevisionWorkViews (data, hosts_lanes[0].id);
+				if (rev == null || rev.Count == 0)
+					continue;
+			}
+
+			matrix.AppendLine ("<tr>");
+			matrix.AppendLine ("<td rowspan='"+ (count != 1 ? count + 1 : count) +"'>");
+			matrix.AppendLine (data.Lanes.Find(h => h.id == lane_id).lane);
+			matrix.AppendLine ("</td>");
+
+			foreach (var host_lane in hosts_lanes) {
+				var rev = FindRevisionWorkViews (data, host_lane.id);
+
+				if (hosts_lanes.Count > 1)
+					matrix.AppendLine ("<tr>");
+
+				matrix.AppendLine ("<td>");
+				matrix.AppendLine (data.Hosts.Find(h => h.id == host_lane.host_id).host);
+				matrix.AppendLine ("</td>");
+
+				for (int i = 0; i < limit; i++) {
+					var cell = (i >= rev.Count) ? null : rev [i];
+					WriteWorkCell (matrix, cell);
+				}
+
+				if(hosts_lanes.Count > 1)
+					matrix.AppendLine ("</tr>");
+			}
+			matrix.AppendLine ("</tr>");
+		}
+
+		// --------------------------------------
+
+		matrix.AppendLine ("</table>");
+
+		return matrix.ToString ();
+	}
+
+
+	// Old Page - not used any more
+	public string GenerateOverview2 (FrontPageResponse data)
 	{
 		StringBuilder matrix = new StringBuilder ();
 		LaneTreeNode tree = BuildTree (data);
