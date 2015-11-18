@@ -20,6 +20,7 @@ using MonkeyWrench;
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
 using MonkeyWrench.Web.WebServices;
+using System.Web.UI.HtmlControls;
 
 public partial class Master : System.Web.UI.MasterPage
 {
@@ -172,31 +173,16 @@ public partial class Master : System.Web.UI.MasterPage
 		div = new Panel ();
 		div.ID = "tree_root_id";
 
-		tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow ("index.aspx?show_all=true", "All", 0, root.Depth, true, div, true)));
+		tableMainTree.Controls.Add (CreateTreeViewRow (MonkeyWrench.Configuration.IndexPage + "?show_all=true", "All", 0, root.Depth, true, div, true));
+		tableMainTree.Controls.Add (div);
 
-		tableMainTree.Rows.Add (Utils.CreateTableRow (div));
 		WriteTree (root, tableMainTree, 1, root.Depth, div);
-
-		// layout the tags
-		div = new Panel ();
-		div.ID = "tags_root_id";
-
-		tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow (null, "Tags", 0, 1, true, div, true)));
-		tableMainTree.Rows.Add (Utils.CreateTableRow (div));
 		WriteTags (tree_response.Tags, tableMainTree, 1, div);
 	}
 
-	public void WriteTags (List<string> tags, Table tableMain, int level, Panel containing_div)
-	{
-		Panel div = new Panel ();
-		div.ID = "tag_node_" + (++counter).ToString ();
+	int counter = 0;
 
-		foreach (var tag in tags) {
-			containing_div.Controls.Add (CreateTreeViewRow (string.Format ("index.aspx?tags={0}", HttpUtility.UrlEncode (tag)), tag, 1, 1, false, div, false));
-		}
-	}
-
-	public void WriteTree (LaneTreeNode node, Table tableMain, int level, int max_level, Panel containing_div)
+	public void WriteTree (LaneTreeNode node, Panel tableMain, int level, int max_level, Panel containing_div)
 	{
 		Panel div = new Panel ();
 		div.ID = "tree_node_" + (++counter).ToString ();
@@ -209,51 +195,67 @@ public partial class Master : System.Web.UI.MasterPage
 				}
 			}
 
-			containing_div.Controls.Add (CreateTreeViewRow (string.Format ("index.aspx?lane={0}", HttpUtility.UrlEncode (n.Lane.lane)), n.Lane.lane, level, max_level, n.Children.Count > 0, div, hiding));
-			
+			HtmlGenericControl li = CreateTreeViewRow (string.Format (MonkeyWrench.Configuration.IndexPage + "?lane={0}", HttpUtility.UrlEncode (n.Lane.lane)), n.Lane.lane, level, max_level, n.Children.Count > 0, div, hiding);
+			containing_div.Controls.Add (li);
+
 			if (n.Children.Count > 0) {
-				containing_div.Controls.Add (div);
 				WriteTree (n, tableMain, level + 1, max_level, div);
 				div = new Panel ();
 				div.ID = "tree_node_" + (++counter).ToString ();
 			}
+
 		}
 	}
 
-	static int counter = 0;
-	public Table CreateTreeViewRow (string target, string name, int level, int max_level, bool has_children, Panel div_to_switch, bool enable_default_hiding)
+	public void WriteTags (List<string> tags, Panel tableMain, int level, Panel containing_div)
 	{
-		TableRow row = new TableRow ();
-		TableCell cell;
-		Table tbl = new Table ();
+		Panel div = new Panel ();
+		div.ID = "tag_node_" + (++counter).ToString ();
+
+		foreach (var tag in tags) {
+			containing_div.Controls.Add (CreateTreeViewRow (string.Format (MonkeyWrench.Configuration.IndexPage + "?tags={0}", HttpUtility.UrlEncode (tag)), tag, 1, 1, false, div, false));
+		}
+	}
+
+	public HtmlGenericControl CreateTreeViewRow (string target, string name, int level, int max_level, bool has_children, Panel div_to_switch, bool enable_default_hiding)
+	{
+		HtmlGenericControl cell = new HtmlGenericControl ("div");
+		HtmlGenericControl tbl  = new HtmlGenericControl ("div");
 
 		for (int i = 0; i < level; i++) {
-			cell = new TableCell ();
-			cell.Text = "<div style='width:8px;height:1px;'/>";
-			row.Cells.Add (cell);
+			HtmlGenericControl span = new HtmlGenericControl ("span");
+			span.Attributes ["style"] = "display: inline-flex; width: 10px; height: 20px;";
+			cell.Controls.Add (span);
 		}
-		cell = new TableCell ();
-		if (!has_children) {
-			cell.Text = "<div style='width:20px;height:20px;'/>";
-		} else {
+
+		if (has_children) {
 			counter++;
-			cell.Text = string.Format (@"
+
+			cell.Attributes ["style"] = "display: inline-flex;";
+			cell.Controls.Add (new Literal () { Text = string.Format (@"
 <img id='minus_img_{1}' src='res/minus.gif' alt='Collapse {0}' height='20px' width='20px' style='display:{3};' onclick='switchVisibility (""plus_img_{1}"", ""minus_img_{1}"", ""{2}"");' />
 <img id='plus_img_{1}'  src='res/plus.gif'  alt='Expand   {0}' height='20px' width='20px' style='display:{4};'  onclick='switchVisibility (""plus_img_{1}"", ""minus_img_{1}"", ""{2}"");' />
-", name, counter, div_to_switch.ClientID, (enable_default_hiding && level > 0) ? "none" : "block", (enable_default_hiding && level > 0) ? "block" : "none");
+", name, counter, div_to_switch.ClientID, (enable_default_hiding && level > 0) ? "none" : "block", (enable_default_hiding && level > 0) ? "block" : "none")});
+
 			if (enable_default_hiding && level > 0) {
 				div_to_switch.Attributes ["style"] = "display: none;";
 			}
-		}
-		row.Cells.Add (cell);
-		if (!string.IsNullOrEmpty (target)) {
-			row.Cells.Add (Utils.CreateTableCell (string.Format ("<a href='{0}'>{1}</a>", target, name)));
 		} else {
-			row.Cells.Add (Utils.CreateTableCell (name));
+			HtmlGenericControl span = new HtmlGenericControl ("span");
+			span.Attributes ["style"] = "display: inline-flex; width: 20px; height: 20px;";
+			cell.Controls.Add (span);
+
+			cell.Attributes ["style"] = "display: inline-flex;";
 		}
 
-		tbl.Rows.Add (row);
+		if (!string.IsNullOrEmpty (target)) {
+			cell.Controls.Add (new Literal(){ Text = string.Format ("<a href='{0}'>{1}</a>", target, name) });
+		} else {
+			cell.Controls.Add (new Literal(){ Text = name });
+		}
 
+		tbl.Controls.Add (cell);
+		tbl.Controls.Add (div_to_switch);
 		return tbl;
 	}
 }

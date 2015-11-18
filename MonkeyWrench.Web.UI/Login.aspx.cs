@@ -61,7 +61,7 @@ public partial class Login : System.Web.UI.Page
 
 		// can't refer back to itself
 		if (txtReferrer.Value.Contains ("Login.aspx"))
-			txtReferrer.Value = "index.aspx";
+			txtReferrer.Value = MonkeyWrench.Configuration.IndexPage;
 
 		cmdLoginOpenId.Visible = !string.IsNullOrEmpty (Configuration.OpenIdProvider);
 		cmdLoginOauth.Visible = !string.IsNullOrEmpty (Configuration.OauthClientId);

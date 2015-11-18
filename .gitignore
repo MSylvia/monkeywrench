@@ -14,6 +14,8 @@ Builder.dll.mdb
 MonkeyWrench.xml
 releases
 bin
+data
+tmp
 obj
 Meebey.SmartIrc4net.xml
 packages/

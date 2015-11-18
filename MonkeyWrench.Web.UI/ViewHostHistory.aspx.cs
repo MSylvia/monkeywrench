@@ -94,7 +94,7 @@ public partial class ViewHostHistory : System.Web.UI.Page
 			string host = response.Hosts [i];
 			DateTime starttime = response.StartTime [i].ToLocalTime ();
 			int duration = response.Durations [i];
-			table.Append ("<tr>");
+			table.AppendFormat ("<tr style='{0}'>", rw.completed ? "" : "background-color:#FFFF9E");
 			table.AppendFormat ("<td><a href='ViewTable.aspx?lane_id={1}&host_id={2}'>{0}</a></td>", lane, rw.lane_id, rw.host_id);
 			table.AppendFormat ("<td>{0}</td>", host);
 			table.AppendFormat ("<td><a href='ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={2}'>{3}</a></td>", rw.lane_id, rw.host_id, rw.revision_id, revision);

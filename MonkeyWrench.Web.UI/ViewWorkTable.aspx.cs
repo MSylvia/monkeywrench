@@ -47,7 +47,7 @@ public partial class ViewWorkTable : System.Web.UI.Page
 		command = response.Command;
 
 		if (lane == null || host == null || command == null) {
-			Response.Redirect ("index.aspx", false);
+			Response.Redirect (MonkeyWrench.Configuration.IndexPage, false);
 			return;
 		}
 

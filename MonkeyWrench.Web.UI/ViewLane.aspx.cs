@@ -66,7 +66,7 @@ public partial class ViewLane : System.Web.UI.Page
 		DBRevision revision = response.Revision;
 
 		if (lane == null || host == null || revision == null) {
-			Response.Redirect ("index.aspx", false);
+			Response.Redirect (MonkeyWrench.Configuration.IndexPage, false);
 			return;
 		}
 
@@ -115,11 +115,11 @@ public partial class ViewLane : System.Web.UI.Page
 	{
 		if (!Authentication.IsInRole (response, MonkeyWrench.DataClasses.Logic.Roles.Administrator)) {
 			return string.Format (@"
-<h2>{4} revision <a href='ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={6}'>{5}</a> on lane '{2}' on '<a href='ViewHostHistory.aspx?host_id={1}'>{3}</a>' 
+<h2>{4} revision <a href='ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={6}'>{5}</a> on lane '{2}' (<a href='index.aspx?lane={2}'>lane</a>) on '<a href='ViewHostHistory.aspx?host_id={1}'>{3}</a>' 
 (<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host, description, revision.revision, revision.id);
 		} else {
 			return string.Format (@"
-<h2>{4} revision <a href='ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={6}'>{5}</a> on lane '<a href='EditLane.aspx?lane_id={0}'>{2}</a>' on '<a href='ViewHostHistory.aspx?host_id={1}'>{3}</a>' 
+<h2>{4} revision <a href='ViewLane.aspx?lane_id={0}&host_id={1}&revision_id={6}'>{5}</a> on lane '<a href='EditLane.aspx?lane_id={0}'>{2}</a>' (<a href='index.aspx?lane={2}'>lane</a>) on '<a href='ViewHostHistory.aspx?host_id={1}'>{3}</a>' 
 (<a href='ViewTable.aspx?lane_id={0}&amp;host_id={1}'>table</a>)</h2><br/>", lane.id, host.id, lane.lane, host.host, description, revision.revision, revision.id);
 		}
 	}

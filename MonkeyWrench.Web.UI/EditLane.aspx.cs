@@ -69,7 +69,10 @@ public partial class EditLane : System.Web.UI.Page
 			return;
 		}
 
-		lblH2.Text = "Lane: " + lane.lane;
+		string laneViewURL  = string.Format (MonkeyWrench.Configuration.IndexPage + "?lane={0}", HttpUtility.UrlEncode (lane.lane));
+		string linkLinkHTML = string.Format ("<a href='{0}'>{1}</a>", laneViewURL, lane.lane);
+
+		lblH2.Text = "Lane: " + linkLinkHTML;
 //			lblDeletionDirectiveErrors.Visible = false;
 
 		// find possible parent lanes

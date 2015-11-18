@@ -8,5 +8,7 @@
         <asp:Label ID="lblMessage" runat="server" /></div>
 	
 	<br />
-	<div id="pager" runat="server" enableviewstate="false"></div>
+	<div id="buildtable-footer">
+		<div id="pager" runat="server" enableviewstate="false"></div>
+	</div>
 </asp:Content>

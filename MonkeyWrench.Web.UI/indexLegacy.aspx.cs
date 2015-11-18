@@ -1,5 +1,5 @@
 ﻿/*
- * index.aspx.cs
+ * indexLegacy.aspx.cs
  *
  * Authors:
  *   Rolf Bjarne Kvinge (RKvinge@novell.com)
@@ -13,7 +13,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -22,10 +21,7 @@ using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
 using MonkeyWrench.Web.WebServices;
 
-using System.Linq;
-using System.IO;
-
-public partial class index : System.Web.UI.Page
+public partial class indexLegacy : System.Web.UI.Page
 {
 	int limit = 10;
 
@@ -94,7 +90,52 @@ public partial class index : System.Web.UI.Page
 		// When viewing tags historically set day limit to zero otherwise we see nothing.
 		data = Utils.LocalWebService.GetFrontPageDataWithTags (Master.WebServiceLogin, limit, 0, lanes, lane_ids != null ? lane_ids.ToArray () : null, tags != null ? 0 : 30, tags);
 		
-		this.buildtable.InnerHtml = GenerateOverview (data);
+		this.buildtable.InnerHtml = tags != null ? GenerateTaggedOverview (data) : GenerateOverview (data);
+	}
+
+	private void WriteLanes (List<StringBuilder> header_rows, LaneTreeNode node, int level, int depth)
+	{
+		if (header_rows.Count <= level)
+			header_rows.Add (new StringBuilder ());
+
+		foreach (LaneTreeNode n in node.Children) {
+			header_rows [level].AppendFormat ("<td colspan='{0}'>{1}</td>", n.Leafs == 0 ? 1 : n.Leafs, n.Lane.lane);
+
+			WriteLanes (header_rows, n, level + 1, depth);
+		}
+
+		if (node.Children.Count == 0) {
+			for (int hl = 0; hl < node.HostLanes.Count; hl++) {
+				for (int i = level; i < depth; i++) {
+					if (header_rows.Count <= i)
+						header_rows.Add (new StringBuilder ());
+					header_rows [i].Append ("<td colspan='1'>-</td>");
+				}
+			}
+		}
+	}
+
+	void WriteHostLane (StringBuilder matrix, IEnumerable<DBHost> hosts, DBHostLane hl)
+	{
+		matrix.AppendFormat ("<td><a href='ViewTable.aspx?lane_id={1}&amp;host_id={2}' class='{3}'>{0}</a></td>", Utils.FindHost (hosts, hl.host_id).host, hl.lane_id, hl.host_id, hl.enabled ? "enabled-hostlane" : "disabled-hostlane");
+	}
+
+	private void WriteHostLanes (StringBuilder matrix, LaneTreeNode node, IEnumerable<DBHost> hosts, List<int> hostlane_order)
+	{
+		node.ForEach (new Action<LaneTreeNode> (delegate (LaneTreeNode target)
+		{
+			if (target.Children.Count != 0)
+				return;
+
+			if (target.HostLanes.Count == 0) {
+				matrix.Append ("<td>-</td>");
+			} else {
+				foreach (DBHostLane hl in target.HostLanes) {
+					hostlane_order.Add (hl.id);
+					WriteHostLane (matrix, hosts, hl);
+				}
+			}
+		}));
 	}
 
 	private LaneTreeNode BuildTree (FrontPageResponse data)
@@ -145,6 +186,73 @@ public partial class index : System.Web.UI.Page
 		} else {
 			return from.ToString ("yyyy-MM-dd");
 		}
+	}
+
+	public string GenerateTaggedOverview (FrontPageResponse data)
+	{
+		StringBuilder matrix = new StringBuilder ();
+
+		var lane_row = new StringBuilder ();
+		var hl_row = new StringBuilder ();
+		var rows = new List<StringBuilder> ();
+
+		// First pass to get the total ammount of rows needed.
+		for (int i = 0; i < data.SelectedLanes.Count; i++) {
+			var lane = data.SelectedLanes [i];
+			var hls  = data.HostLanes.FindAll ((hl) => hl.lane_id == lane.id);
+			foreach (var hl in hls) {
+				var work_views = FindRevisionWorkViews (data, hl.id);
+				// Create more rows if needed.
+				if (rows.Count < work_views.Count) {
+					rows.Capacity = work_views.Count;
+					for (int r = rows.Count; r < work_views.Count; r++)
+						rows.Add (new StringBuilder ());
+				}
+			}
+		}
+
+		// Render pass
+		matrix.AppendLine ("<table class='buildstatus'>");
+
+		for (int i = 0; i < data.SelectedLanes.Count; i++) {
+			var lane = data.SelectedLanes [i];
+			var hls  = data.HostLanes.FindAll ((hl) => hl.lane_id == lane.id);
+			lane_row.AppendFormat ("<td colspan='{1}'>{0}</td>", data.SelectedLanes [i].lane, hls.Count == 0 ? 1 : hls.Count).AppendLine ();
+			foreach (var hl in hls) {
+				// This renders all the host header lanes 
+				WriteHostLane (hl_row, data.Hosts, hl);
+
+				// Find all the builds
+				var work_views = FindRevisionWorkViews (data, hl.id);
+
+				// Create more rows if needed.
+				if (rows.Count < work_views.Count) {
+					rows.Capacity = work_views.Count;
+					for (int r = rows.Count; r < work_views.Count; r++)
+						rows.Add (new StringBuilder ());
+				}
+
+				for (int r = 0; r < work_views.Count; r++) {
+					WriteWorkCell (rows [r], work_views [r]);
+				}
+
+				// Fix the staggering, add the empty cells.
+				if (work_views.Count < rows.Count)
+					for (int r = work_views.Count; r < rows.Count; r++) {
+						WriteWorkCell (rows [r], null);
+					}
+
+			}
+		}
+
+		matrix.Append ("<tr>").Append (lane_row).AppendLine ("</tr>");
+		matrix.Append ("<tr>").Append (hl_row).AppendLine ("</tr>");
+		for (int r = 0; r < rows.Count; r++) {
+			matrix.Append ("<tr>").Append (rows [r]).AppendLine ("</tr>");
+		}
+		matrix.AppendLine ("</table>");
+
+		return matrix.ToString ();
 	}
 
 	void WriteWorkCell (StringBuilder row, DBRevisionWorkView2 work)
@@ -214,163 +322,68 @@ public partial class index : System.Web.UI.Page
 		return null;
 	}
 
-	public string ExtractRepoName(String repo) {
-		var regex = new Regex (@"github.com.(\S+)\/(\S+)");
-		var match = regex.Match (repo);
-
-		if (match.Groups [1].Length == 0 && match.Groups [2].Length == 0)
-			return null;
-
-		return match.Groups [1] + "/" + Path.GetFileNameWithoutExtension(match.Groups [2].ToString());
-	}
-
-	void WriteWorkHeader (StringBuilder matrix, string text, bool first)
-	{
-		matrix.AppendLine ("<tr>");
-		matrix.AppendLine ("<td colspan='" + (limit + 2) + "' style='text-align:left; border-left-color: #FFF; border-right-color: #FFF; " + (!first ? "" : "border-top-color: #FFF") + "'>");
-		matrix.AppendLine ("<h3>" + text + " </h3>");
-		matrix.AppendLine ("</td></tr>");
-	}
-
-	public string ExtractBranchName(string branch) {
-		return (string.IsNullOrEmpty(branch) ? "master" : new Regex (@".*?origin\/(.*?)(\s|$)").Match(branch).Groups[1].ToString());
-	}
-
-	public List<LaneTreeNode> GetAllNodes(LaneTreeNode tree, List<DBLane> lanes) {
-		List<LaneTreeNode> nodes = new List<LaneTreeNode> ();
-
-		tree.ForEach (new Action<LaneTreeNode> (delegate (LaneTreeNode target)
-		{
-			if (target.Children.Count == 0)
-				return;
-
-			if (target.Lane == null) {
-				return;
-			} else {
-				foreach (LaneTreeNode h in target.Children) {
-					Console.WriteLine ("Lane: " + h.Lane.lane + " Children: " + h.Children.Count + " Parent: " + target.Lane.lane);
-						nodes.AddRange (GetAllNodes (h, lanes));
-				}
-			}
-
-			if (lanes.Contains (target.Lane)) 
-				nodes.Add (target);
-		}));
-
-		return nodes;
-	}
-
-	bool first = true; // little style hack for first element
-
-	public void RenderRepos(StringBuilder matrix, FrontPageResponse data, List<string> all_repos) {
-
-		LaneTreeNode tree = null;
-		if (data.SelectedLanes.Count > 0) {
-			tree = BuildTree (data);
-			if(tree == null) // No Child Lanes
-				return;
-		}
-
-		foreach (var repos in all_repos.GroupBy ((r) => ExtractRepoName (r)).OrderBy( r => r.Key )){
-			if (string.IsNullOrEmpty (repos.Key))
-				continue;
-
-			bool wroteHeader = false;
-			foreach (var repo in repos) {
-				if (string.IsNullOrEmpty (repo))
-					continue;
-				
-				List<DBLane> lanes = null;
-				// Selected Lanes Only
-				if (data.SelectedLanes.Count > 0) {
-					lanes = data.SelectedLanes;
-					foreach (var node in GetAllNodes (tree, lanes)) {
-						lanes.AddRange(node.GetAllNodes().Select(l => l.Lane).ToList());
-					}
-				// All Lanes
-				} else {
-					lanes = data.Lanes.FindAll (lane => lane.repository == repo);
-				}
-
-				lanes = lanes.FindAll (lane => lane.repository == repo).OrderBy(l => ExtractBranchName(l.max_revision)).Distinct().ToList();
-
-				RenderLanes (matrix, data, lanes, repos, wroteHeader);
-			}
-		}
-		matrix.AppendLine ("</table>");
-	}
-
-	public void RenderLanes(StringBuilder matrix, FrontPageResponse data, List<DBLane> lanes, IGrouping<string,string> repos, bool wroteHeader) {
-		
-		foreach (var lane in lanes) {
-			List<DBHostLane> hosts_lanes = data.HostLanes.FindAll (hl => hl.lane_id == lane.id);
-			int count = hosts_lanes.Count;
-			if (count == 0)
-				continue;
-
-			if (count == 1) {
-				var rev = FindRevisionWorkViews (data, hosts_lanes [0].id);
-				if (rev == null || rev.Count == 0)
-					continue;
-			}
-
-			if (!wroteHeader && lanes.Count != 0) {
-				wroteHeader = true;
-				Console.WriteLine ("header: " + repos.Key);
-				WriteWorkHeader (matrix, repos.Key, first);
-			}
-
-			matrix.AppendLine ("<tr>");
-			matrix.AppendFormat ("<td rowspan='{0}' title='Branch: {2}'>{1}</td>",
-				(count != 1 ? count + 1 : count),
-				lane.lane,
-				ExtractBranchName(lane.max_revision)
-			);
-
-			RenderHostLanes (matrix, data, hosts_lanes);
-		}
-	}
-
-	public void RenderHostLanes(StringBuilder matrix, FrontPageResponse data, List<DBHostLane> hosts_lanes) {
-		foreach (var host_lane in hosts_lanes) {
-			var rev = FindRevisionWorkViews (data, host_lane.id);
-
-			if (hosts_lanes.Count > 1)
-				matrix.AppendLine ("<tr>");
-
-			DBHost host = data.Hosts.Find (h => h.id == host_lane.host_id);
-
-			matrix.AppendFormat ("<td><a href='ViewTable.aspx?lane_id={1}&amp;host_id={2}' class='{3}'>{0}</a></td>",
-				host.host,
-				host_lane.lane_id,
-				host_lane.host_id,
-				host_lane.enabled ? "enabled-hostlane" : "disabled-hostlane"
-			);
-
-			for (int i = 0; i < limit; i++) {
-				var cell = (i >= rev.Count) ? null : rev [i];
-				WriteWorkCell (matrix, cell);
-			}
-
-			if (hosts_lanes.Count > 1)
-				matrix.AppendLine ("</tr>");
-		}
-		matrix.AppendLine ("</tr>");
-	}
-
-
 	public string GenerateOverview (FrontPageResponse data)
 	{
 		StringBuilder matrix = new StringBuilder ();
-		matrix.AppendLine ("<table class='buildstatus table'>");
+		LaneTreeNode tree = BuildTree (data);
+		List<StringBuilder> header_rows = new List<StringBuilder> ();
+		List<int> hostlane_order = new List<int> ();
 
-		// By repo to lane to hostlane to job ---------------
-		List<string> all_repos = new List<string>(data.Lanes.Select(lane => lane.repository).Distinct());
+		if (tree == null)
+			return string.Empty;
+		
+		// This renders all the host header lanes 
+		WriteLanes (header_rows, tree, 0, tree.Depth); 
 
-		RenderRepos (matrix, data, all_repos);
+		matrix.AppendLine ("<table class='buildstatus'>");
+		for (int i = 0; i < header_rows.Count; i++) {
+			if (header_rows [i].Length == 0)
+				continue;
+
+			matrix.Append ("<tr>");
+			matrix.Append (header_rows [i]);
+			matrix.AppendLine ("</tr>");
+		}
+
+		// Renders all the hosts
+		matrix.AppendLine ("<tr>");
+		WriteHostLanes (matrix, tree, data.Hosts, hostlane_order); 
+		matrix.AppendLine ("</tr>");
+
+		// Renders all the builds
+		int counter = 0;
+		int added = 0;
+		StringBuilder row = new StringBuilder ();
+		do {
+			added = 0;
+			row.Length = 0;
+
+			for (int i = 0; i < hostlane_order.Count; i++) {
+				int hl_id = hostlane_order [i];
+
+				var rev = FindRevisionWorkViews (data, hl_id);
+				DBRevisionWorkView2 work = null;
+
+				if (rev != null && rev.Count > counter) {
+					work = rev [counter];
+					added++;
+				}
+
+				WriteWorkCell (row, work);
+			}
+
+			if (added > 0 && row.Length > 0) {
+				matrix.Append ("<tr>");
+				matrix.Append (row.ToString ());
+				matrix.Append ("</tr>");
+			}
+
+			counter++;
+		} while (counter <= limit && added > 0);
+
+		matrix.AppendLine ("</table>");
 
 		return matrix.ToString ();
 	}
-
 }
 

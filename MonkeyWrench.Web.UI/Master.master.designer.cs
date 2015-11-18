@@ -26,7 +26,7 @@ public partial class Master {
 	
 	protected System.Web.UI.WebControls.Literal cellLogout;
 	
-	protected System.Web.UI.WebControls.Table tableMainTree;
+	protected System.Web.UI.WebControls.Panel tableMainTree;
 	
 	protected System.Web.UI.WebControls.Table tableHostStatus;
 	
