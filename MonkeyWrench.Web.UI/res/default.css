@@ -543,6 +543,8 @@ li
 {
     height: 40px;
 	background-color: #666;
+	position: fixed;
+	width: 100%;
 }
 
 #siteheader a
@@ -711,6 +713,7 @@ body {
 }
 
 #content-container {
+	padding-top: 40px;
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: -webkit-flex;
@@ -959,4 +962,18 @@ table.diff_view_table
     border-style: outset; 
     border-color: #808080;
     border-collapse: separate;
+}
+
+#buildtable-footer {
+	border-top: 3px solid rgb(221, 221, 221);
+	background: rgb(238, 238, 238) none repeat scroll 0% 0%;
+	z-index: 150;
+	bottom: 0px;
+	width: 100%;
+	padding: 10px;
+	position: fixed;
+}
+
+div[id*="_buildtable"] {
+    padding-bottom: 150px;
 }

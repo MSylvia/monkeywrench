@@ -1,10 +1,13 @@
 ﻿<%@ Page Language="C#" MasterPageFile="~/Master.master" AutoEventWireup="true" Inherits="index" Codebehind="index.aspx.cs" EnableViewState="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="content" runat="Server" EnableViewState="False">
+	<div id="buildtable-header">
     <h3>
         Build matrix</h3>
+    </div>
     <div id="buildtable" runat="server" />
     <div><asp:Label runat="server" ID="lblMessage" ForeColor="Red" /></div>
+    <div id="buildtable-footer">
     <div><a href="SelectLanes.aspx">Select lanes</a></div>
     <div>
     <a href="index.aspx?limit=10">View 10 revisions</a> - 
@@ -50,5 +53,6 @@
                 </td>
             </tr>
         </table>
+    </div>
     </div>
 </asp:Content>

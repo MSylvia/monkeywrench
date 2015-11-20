@@ -22,6 +22,7 @@ using MonkeyWrench.DataClasses.Logic;
 using MonkeyWrench.Web.WebServices;
 
 using System.Linq;
+using System.IO;
 
 public partial class index : System.Web.UI.Page
 {
@@ -332,13 +333,13 @@ public partial class index : System.Web.UI.Page
 	}
 
 	public string ExtractRepoName(String repo) {
-		var regex = new System.Text.RegularExpressions.Regex ("github.com.(\\w+)\\/((\\w|-)+)");
+		var regex = new System.Text.RegularExpressions.Regex ("github.com.(\\S+)\\/(\\S+)");
 		var match = regex.Match (repo);
 
 		if (match.Groups [1].Length == 0 && match.Groups [2].Length == 0)
 			return null;
 
-		return match.Groups [1] + "/" + match.Groups [2];
+		return match.Groups [1] + "/" + Path.GetFileNameWithoutExtension(match.Groups [2].ToString());
 	}
 
 	public string GenerateOverview (FrontPageResponse data)
@@ -352,35 +353,31 @@ public partial class index : System.Web.UI.Page
 
 		// By repo to lane to hostlane to job ---------------
 		bool first = true; // little style hack for first element
-		var repos = data.Lanes.Select(lane => lane.repository).Distinct();
-		var repo_mapping = repos.Where(repository => ExtractRepoName (repository) != null).Select(repository => new { Name =  ExtractRepoName (repository), Repo = repository });
-		var repo_list = repo_mapping.GroupBy (repo => repo.Name).OrderBy(s => s.Key);
+		var all_repos = data.Lanes.Select(lane => lane.repository).Distinct();
 
-		foreach (var entry in repo_list) {
-
+		foreach (var repos in all_repos.GroupBy ((r) => ExtractRepoName (r)).OrderBy( r => r.Key )) {
+			if (string.IsNullOrEmpty (repos.Key))
+				continue;
+			
 			matrix.AppendLine ("<tr>");
 			matrix.AppendLine ("<td colspan='" + (limit + 2) + "' style='text-align:left; border-left-color: #FFF; border-right-color: #FFF; " + (!first ? "" : "border-top-color: #FFF")  + "'>");
-			matrix.AppendLine ("<h3>" + entry.Key + " </h3>");
+			matrix.AppendLine ("<h3>" + repos.Key + " </h3>");
 			matrix.AppendLine ("</td></tr>");
 
-			foreach (var repo_info in entry) {
-				if (string.IsNullOrEmpty (repo_info.Repo))
+			foreach (var repo in repos) {
+				if (string.IsNullOrEmpty (repo))
 					continue;
 			
 				List<DBLane> lanes;
-				if (data.SelectedLanes.Count > 0)
+				if (data.SelectedLanes.Count > 0) {
+					//BuildTree(data).
+					// recursivly find lanes under this
 					lanes = data.SelectedLanes;
-				else
-					lanes = data.Lanes.FindAll (lane => lane.repository == repo_info.Repo);
+				} else {
+					lanes = data.Lanes.FindAll (lane => lane.repository == repo);
+				}
 				
-				lanes = lanes.FindAll (lane => lane.repository == repo_info.Repo).OrderBy(l => l.lane).ToList();
-
-//				if (lanes.Count > 0) {
-//					matrix.AppendLine ("<tr>");
-//					matrix.AppendLine ("<td colspan='" + (limit + 2) + "' style='text-align:left;'>");
-//					matrix.AppendLine ("<h3>" + repo_info.Name + " </h3>");
-//					matrix.AppendLine ("</td></tr>");
-//				}
+				lanes = lanes.FindAll (lane => lane.repository == repo).OrderBy(l => l.max_revision).ToList();
 
 				foreach (var lane in lanes) {
 					List<DBHostLane> hosts_lanes = data.HostLanes.FindAll (hl => hl.lane_id == lane.id);
@@ -395,9 +392,10 @@ public partial class index : System.Web.UI.Page
 					}
 
 					matrix.AppendLine ("<tr>");
-					matrix.AppendFormat ("<td rowspan='{0}'>{1}</td>",
+					matrix.AppendFormat ("<td rowspan='{0}'>{1} </br>({2})</td>",
 						(count != 1 ? count + 1 : count),
-						lane.lane
+						lane.lane,
+						lane.max_revision
 					);
 
 					foreach (var host_lane in hosts_lanes) {
