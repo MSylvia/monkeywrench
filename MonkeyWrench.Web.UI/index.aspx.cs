@@ -331,6 +331,16 @@ public partial class index : System.Web.UI.Page
 		return null;
 	}
 
+	public string ExtractRepoName(String repo) {
+		var regex = new System.Text.RegularExpressions.Regex ("github.com.(\\w+)\\/((\\w|-)+)");
+		var match = regex.Match (repo);
+
+		if (match.Groups [1].Length == 0 && match.Groups [2].Length == 0)
+			return null;
+
+		return match.Groups [1] + "/" + match.Groups [2];
+	}
+
 	public string GenerateOverview (FrontPageResponse data)
 	{
 		StringBuilder matrix = new StringBuilder ();
@@ -339,111 +349,90 @@ public partial class index : System.Web.UI.Page
 		matrix.AppendLine ("Fuzzy Filter: <input type=\"search\" class=\"light-table-filter\" data-table=\"order-table\" placeholder=\"Filter\">");
 
 		matrix.AppendLine ("<table class='buildstatus order-table table'>");
+
 		// By repo to lane to hostlane to job ---------------
 
-		// TODO
-
 		var repos = data.Lanes.Select(lane => lane.repository).Distinct();
+		var repo_mapping = repos.Where(repository => ExtractRepoName (repository) != null).Select(repository => new { Name =  ExtractRepoName (repository), Repo = repository });
+		var repo_list = repo_mapping.GroupBy (repo => repo.Name);
 
-		foreach (var repo in repos) {
-
-			//matrix.AppendLine ("<h3>" + repo.Split(new char[]{'/'}).Last().Split(new char[]{'.'}).First() + "</h3>");
-			//matrix.AppendLine ("<table class='buildstatus order-table table'>");
-
+		foreach (var item in repo_list) {
 			matrix.AppendLine ("<tr>");
-			matrix.AppendLine ("<td colspan='"+ (limit + 2) +"'>");
-			matrix.AppendLine ("<h3>" + repo.Split(new char[]{'/'}).Last().Split(new char[]{'.'}).First() + " (" + repo + ")</h3>");
-			matrix.AppendLine ("</td></tr>");
-
-			var lanes = data.Lanes.FindAll (lane => lane.repository == repo);
-			foreach (var lane in lanes) {
-				List<DBHostLane> hosts_lanes = data.HostLanes.FindAll (hl => hl.lane_id == lane.id);
-				int count = hosts_lanes.Count;
-				if (count == 0)
-					continue;
-
-				if (count == 1) {
-					var rev = FindRevisionWorkViews (data, hosts_lanes[0].id);
-					if (rev == null || rev.Count == 0)
-						continue;
-				}
-
-				matrix.AppendLine ("<tr>");
-				matrix.AppendLine ("<td rowspan='"+ (count != 1 ? count + 1 : count) +"'>");
-				matrix.AppendLine (lane.lane);
-				matrix.AppendLine ("</td>");
-
-				foreach (var host_lane in hosts_lanes) {
-					var rev = FindRevisionWorkViews (data, host_lane.id);
-
-					if (hosts_lanes.Count > 1)
-						matrix.AppendLine ("<tr>");
-
-					matrix.AppendLine ("<td>");
-					matrix.AppendLine (data.Hosts.Find(h => h.id == host_lane.host_id).host);
-					matrix.AppendLine ("</td>");
-
-					for (int i = 0; i < limit; i++) {
-						var cell = (i >= rev.Count) ? null : rev [i];
-						WriteWorkCell (matrix, cell);
-					}
-
-					if(hosts_lanes.Count > 1)
-						matrix.AppendLine ("</tr>");
-				}
-				matrix.AppendLine ("</tr>");
+			matrix.AppendLine ("<td>"+ item.Key+"</td>");
+			foreach (var r in item) {
+				matrix.AppendLine ("<td>" + r.Repo + "</td>");
 			}
-
-
-
+			matrix.AppendLine ("</tr>");
 		}
 
-		matrix.AppendLine ("</table>");
-
-		// By hostlane to lane ------------------------------
-
-//		var lane_ids = data.HostLanes.Select(x => x.lane_id).Distinct();
-//		foreach (var lane_id in lane_ids) {
-//			List<DBHostLane> hosts_lanes = data.HostLanes.FindAll (hl => hl.lane_id == lane_id);
-//			int count = hosts_lanes.Count;
-//			if (count == 0)
+//
+//		foreach (var repo in repos) {
+//			if (string.IsNullOrEmpty (repo))
 //				continue;
 //			
-//			if (count == 1) {
-//				var rev = FindRevisionWorkViews (data, hosts_lanes[0].id);
-//				if (rev == null || rev.Count == 0)
-//					continue;
+//			List<DBLane> lanes;
+//			if (data.SelectedLanes.Count > 0)
+//				lanes = data.SelectedLanes;
+//			else
+//				lanes = data.Lanes.FindAll (lane => lane.repository == repo);
+//
+//			//lanes = lanes.Where (regex.IsMatch).ToList ();
+//			lanes = lanes.FindAll (lane => lane.repository == repo);
+//
+//			if (lanes.Count > 0) {
+//				matrix.AppendLine ("<tr>");
+//				matrix.AppendLine ("<td colspan='" + (limit + 2) + "' style='text-align:left;'>");
+//				//matrix.AppendLine ("<h3>" + repo.Split (new char[]{ '/' }).Last ().Split (new char[]{ '.' }).First () + " (" + repo + ")["+ ExtractRepoName (repo) + "] " + lanes.Count+ " </h3>");
+//				matrix.AppendLine ("<h3>" + ExtractRepoName (repo) + " </h3>");
+//				matrix.AppendLine ("</td></tr>");
 //			}
 //
-//			matrix.AppendLine ("<tr>");
-//			matrix.AppendLine ("<td rowspan='"+ (count != 1 ? count + 1 : count) +"'>");
-//			matrix.AppendLine (data.Lanes.Find(h => h.id == lane_id).lane);
-//			matrix.AppendLine ("</td>");
+//			foreach (var lane in lanes) {
+//				List<DBHostLane> hosts_lanes = data.HostLanes.FindAll (hl => hl.lane_id == lane.id);
+//				int count = hosts_lanes.Count;
+//				if (count == 0)
+//					continue;
 //
-//			foreach (var host_lane in hosts_lanes) {
-//				var rev = FindRevisionWorkViews (data, host_lane.id);
-//
-//				if (hosts_lanes.Count > 1)
-//					matrix.AppendLine ("<tr>");
-//
-//				matrix.AppendLine ("<td>");
-//				matrix.AppendLine (data.Hosts.Find(h => h.id == host_lane.host_id).host);
-//				matrix.AppendLine ("</td>");
-//
-//				for (int i = 0; i < limit; i++) {
-//					var cell = (i >= rev.Count) ? null : rev [i];
-//					WriteWorkCell (matrix, cell);
+//				if (count == 1) {
+//					var rev = FindRevisionWorkViews (data, hosts_lanes[0].id);
+//					if (rev == null || rev.Count == 0)
+//						continue;
 //				}
 //
-//				if(hosts_lanes.Count > 1)
-//					matrix.AppendLine ("</tr>");
-//			}
-//			matrix.AppendLine ("</tr>");
-//		}
+//				matrix.AppendLine ("<tr>");
+//				matrix.AppendFormat ("<td rowspan='{0}'>{1}</td>",
+//					(count != 1 ? count + 1 : count),
+//					lane.lane
+//				);
 //
-		// --------------------------------------
+//				foreach (var host_lane in hosts_lanes) {
+//					var rev = FindRevisionWorkViews (data, host_lane.id);
+//
+//					if (hosts_lanes.Count > 1)
+//						matrix.AppendLine ("<tr>");
+//					
+//					DBHost host = data.Hosts.Find (h => h.id == host_lane.host_id);
+//
+//					matrix.AppendFormat ("<td><a href='ViewTable.aspx?lane_id={1}&amp;host_id={2}' class='{3}'>{0}</a></td>",
+//						host.host,
+//						host_lane.lane_id,
+//						host_lane.host_id,
+//						host_lane.enabled ? "enabled-hostlane" : "disabled-hostlane"
+//					);
+//
+//					for (int i = 0; i < limit; i++) {
+//						var cell = (i >= rev.Count) ? null : rev [i];
+//						WriteWorkCell (matrix, cell);
+//					}
+//
+//					if(hosts_lanes.Count > 1)
+//						matrix.AppendLine ("</tr>");
+//				}
+//				matrix.AppendLine ("</tr>");
+//			}
+//		}
 
-		//matrix.AppendLine ("</table>");
+		matrix.AppendLine ("</table>");
 
 		return matrix.ToString ();
 	}
