@@ -342,6 +342,10 @@ public partial class index : System.Web.UI.Page
 		return match.Groups [1] + "/" + Path.GetFileNameWithoutExtension(match.Groups [2].ToString());
 	}
 
+	public string ExtractBranchName(string branch) {
+		return (string.IsNullOrEmpty(branch) ? "master" : new System.Text.RegularExpressions.Regex (".*?origin\\/(.*?)(\\s|$)").Match(branch).Groups[1].ToString());
+	}
+
 	public string GenerateOverview (FrontPageResponse data)
 	{
 		StringBuilder matrix = new StringBuilder ();
@@ -377,7 +381,7 @@ public partial class index : System.Web.UI.Page
 					lanes = data.Lanes.FindAll (lane => lane.repository == repo);
 				}
 				
-				lanes = lanes.FindAll (lane => lane.repository == repo).OrderBy(l => l.max_revision).ToList();
+				lanes = lanes.FindAll (lane => lane.repository == repo).OrderBy(l => ExtractBranchName(l.max_revision)).ToList();
 
 				foreach (var lane in lanes) {
 					List<DBHostLane> hosts_lanes = data.HostLanes.FindAll (hl => hl.lane_id == lane.id);
@@ -392,10 +396,10 @@ public partial class index : System.Web.UI.Page
 					}
 
 					matrix.AppendLine ("<tr>");
-					matrix.AppendFormat ("<td rowspan='{0}'>{1} </br>({2})</td>",
+					matrix.AppendFormat ("<td rowspan='{0}' title='Branch: {2}'>{1}</td>",
 						(count != 1 ? count + 1 : count),
 						lane.lane,
-						lane.max_revision
+						ExtractBranchName(lane.max_revision)
 					);
 
 					foreach (var host_lane in hosts_lanes) {
