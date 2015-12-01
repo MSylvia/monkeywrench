@@ -20,6 +20,22 @@ using log4net;
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.Web.WebServices;
 
+public static class LaneTreeNodeExt {
+	
+	public static List<LaneTreeNode> GetAllNodes(this LaneTreeNode _self)
+	{
+		List<LaneTreeNode> result = new List<LaneTreeNode>();
+		result.Add(_self);
+		foreach (LaneTreeNode child in _self.Children)
+		{
+			result.AddRange(child.GetAllNodes());
+		}
+		return result;
+	}
+
+
+}
+
 public class LaneTreeNode
 {
 	private static readonly ILog log = LogManager.GetLogger (typeof (LaneTreeNode));
@@ -115,7 +131,7 @@ public class LaneTreeNode
 		return null;
 	}
 
-	static List<DBLane> FilterToLatestMonth (IEnumerable<DBLane> lanes)
+	public static List<DBLane> FilterToLatestMonth (IEnumerable<DBLane> lanes)
 	{
 		var rv = new List<DBLane> ();
 		var already_in = new HashSet<int> ();

@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -333,7 +334,7 @@ public partial class index : System.Web.UI.Page
 	}
 
 	public string ExtractRepoName(String repo) {
-		var regex = new System.Text.RegularExpressions.Regex ("github.com.(\\S+)\\/(\\S+)");
+		var regex = new Regex (@"github.com.(\S+)\/(\S+)");
 		var match = regex.Match (repo);
 
 		if (match.Groups [1].Length == 0 && match.Groups [2].Length == 0)
@@ -343,7 +344,7 @@ public partial class index : System.Web.UI.Page
 	}
 
 	public string ExtractBranchName(string branch) {
-		return (string.IsNullOrEmpty(branch) ? "master" : new System.Text.RegularExpressions.Regex (".*?origin\\/(.*?)(\\s|$)").Match(branch).Groups[1].ToString());
+		return (string.IsNullOrEmpty(branch) ? "master" : new Regex (@".*?origin\/(.*?)(\s|$)").Match(branch).Groups[1].ToString());
 	}
 
 	public string GenerateOverview (FrontPageResponse data)
@@ -374,9 +375,16 @@ public partial class index : System.Web.UI.Page
 			
 				List<DBLane> lanes;
 				if (data.SelectedLanes.Count > 0) {
-					//BuildTree(data).
+					LaneTreeNode tree = BuildTree(data);
+
 					// recursivly find lanes under this
 					lanes = data.SelectedLanes;
+					LaneTreeNode node = tree.Find (n => n.Lane.lane == lanes.First().lane);
+
+					if(node != null)
+						lanes = node.GetAllNodes().Select(l => l.Lane).ToList();
+					
+
 				} else {
 					lanes = data.Lanes.FindAll (lane => lane.repository == repo);
 				}
