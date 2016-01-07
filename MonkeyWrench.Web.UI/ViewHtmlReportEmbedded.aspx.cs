@@ -43,7 +43,7 @@ public partial class ViewHtmlReportEmbedded : System.Web.UI.Page
 		DBRevision revision = response.Revision;
 
 		if (lane == null || host == null || revision == null) {
-			Response.Redirect ("index.aspx", false);
+			Response.Redirect (MonkeyWrench.Configuration.IndexPage, false);
 			return;
 		}
 

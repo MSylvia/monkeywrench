@@ -14,8 +14,8 @@
 </head>
 <body>
     <div id="siteheader">
-	    <a href="index.aspx" id="logo"><img id="imgLogo" runat="server" alt="logo" src="res/logo.png" /></a>
-	    <a id="title" href="index.aspx">MonkeyWrench</a>
+	    <a href="<%=MonkeyWrench.Configuration.IndexPage%>" id="logo"><img id="imgLogo" runat="server" alt="logo" src="res/logo.png" /></a>
+	    <a id="title" href="<%=MonkeyWrench.Configuration.IndexPage%>">MonkeyWrench - DEVELOPER MODE</a>
         <ul id="nav">
 	        <asp:Literal ID="cellLogin" runat="server" />
 	        <li><a href="doc/index.html">Help</a></li>

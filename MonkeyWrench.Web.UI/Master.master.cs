@@ -172,7 +172,7 @@ public partial class Master : System.Web.UI.MasterPage
 		div = new Panel ();
 		div.ID = "tree_root_id";
 
-		tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow ("index.aspx?show_all=true", "All", 0, root.Depth, true, div, true)));
+		tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow (MonkeyWrench.Configuration.IndexPage + "?show_all=true", "All", 0, root.Depth, true, div, true)));
 
 		tableMainTree.Rows.Add (Utils.CreateTableRow (div));
 		WriteTree (root, tableMainTree, 1, root.Depth, div);
@@ -192,7 +192,7 @@ public partial class Master : System.Web.UI.MasterPage
 		div.ID = "tag_node_" + (++counter).ToString ();
 
 		foreach (var tag in tags) {
-			containing_div.Controls.Add (CreateTreeViewRow (string.Format ("index.aspx?tags={0}", HttpUtility.UrlEncode (tag)), tag, 1, 1, false, div, false));
+			containing_div.Controls.Add (CreateTreeViewRow (string.Format (MonkeyWrench.Configuration.IndexPage + "?tags={0}", HttpUtility.UrlEncode (tag)), tag, 1, 1, false, div, false));
 		}
 	}
 
@@ -209,7 +209,7 @@ public partial class Master : System.Web.UI.MasterPage
 				}
 			}
 
-			containing_div.Controls.Add (CreateTreeViewRow (string.Format ("index.aspx?lane={0}", HttpUtility.UrlEncode (n.Lane.lane)), n.Lane.lane, level, max_level, n.Children.Count > 0, div, hiding));
+			containing_div.Controls.Add (CreateTreeViewRow (string.Format (MonkeyWrench.Configuration.IndexPage + "?lane={0}", HttpUtility.UrlEncode (n.Lane.lane)), n.Lane.lane, level, max_level, n.Children.Count > 0, div, hiding));
 			
 			if (n.Children.Count > 0) {
 				containing_div.Controls.Add (div);

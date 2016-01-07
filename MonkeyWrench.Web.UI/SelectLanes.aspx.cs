@@ -110,6 +110,6 @@ public partial class SelectLanes : System.Web.UI.Page
 
 		string lane_ids = string.Join (";", lane_ids_str.ToArray ());
 		
-		Response.Redirect ("index.aspx?lane_id=" + lane_ids, false);
+		Response.Redirect (MonkeyWrench.Configuration.IndexPage + "?lane_id=" + lane_ids, false);
 	}
 }

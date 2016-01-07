@@ -171,6 +171,6 @@ public partial class Delete : System.Web.UI.Page
 
 	private void Redirect ()
 	{
-		Response.Redirect (string.IsNullOrEmpty (txtReturnTo.Value) ? "index.aspx" : txtReturnTo.Value, false);
+		Response.Redirect (string.IsNullOrEmpty (txtReturnTo.Value) ? MonkeyWrench.Configuration.IndexPage : txtReturnTo.Value, false);
 	}
 }

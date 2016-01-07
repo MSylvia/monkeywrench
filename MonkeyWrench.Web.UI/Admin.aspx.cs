@@ -36,7 +36,7 @@ public partial class Admin : System.Web.UI.Page
 			switch (action) {
 			case "schedule":
 				Utils.WebService.ExecuteScheduler (Master.WebServiceLogin, true);
-				Response.Redirect (Request.UrlReferrer == null ? "index.aspx" : Request.UrlReferrer.ToString (), false);
+				Response.Redirect (Request.UrlReferrer == null ? MonkeyWrench.Configuration.IndexPage : Request.UrlReferrer.ToString (), false);
 				return;
 			}
 		}

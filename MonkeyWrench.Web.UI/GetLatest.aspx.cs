@@ -35,7 +35,7 @@ namespace MonkeyWrench.Web.UI
 			var revision = getLatestRevision (webServiceLogin, laneName, step, 0, limit);
 
 			Action handleGetLatest = () => {
-				var homePage = Page.ResolveUrl ("~/index.aspx");
+				var homePage = Page.ResolveUrl ("~/" + MonkeyWrench.Configuration.IndexPage);
 				var URL = revision != "" ? String.Format ("{0}/{1}/{2}/{3}/manifest", baseURL, laneName, revision.Substring (0, 2), revision) : homePage;
 				Response.AppendHeader ("Access-Control-Allow-Origin", "*");
 				Response.Redirect (URL);
