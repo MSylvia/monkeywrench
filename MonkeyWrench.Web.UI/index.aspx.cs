@@ -363,32 +363,66 @@ public partial class index : System.Web.UI.Page
 		foreach (var repos in all_repos.GroupBy ((r) => ExtractRepoName (r)).OrderBy( r => r.Key )) {
 			if (string.IsNullOrEmpty (repos.Key))
 				continue;
-			
-			matrix.AppendLine ("<tr>");
-			matrix.AppendLine ("<td colspan='" + (limit + 2) + "' style='text-align:left; border-left-color: #FFF; border-right-color: #FFF; " + (!first ? "" : "border-top-color: #FFF")  + "'>");
-			matrix.AppendLine ("<h3>" + repos.Key + " </h3>");
-			matrix.AppendLine ("</td></tr>");
+
+			bool wroteHeader = false;
+
+			Console.WriteLine ("Group: " + repos.Key + " Count: " + repos.Count());
 
 			foreach (var repo in repos) {
 				if (string.IsNullOrEmpty (repo))
 					continue;
-			
+				
+				Console.WriteLine ("Repo: " + repo);
+
 				List<DBLane> lanes;
 				if (data.SelectedLanes.Count > 0) {
 					LaneTreeNode tree = BuildTree(data);
 
-					// recursivly find lanes under this
+					// No Child Lanes
+					if(tree == null)
+						continue;
+					Console.WriteLine ("wrote: " + wroteHeader);
+
+					List<LaneTreeNode> nodes = new List<LaneTreeNode> ();
+
 					lanes = data.SelectedLanes;
-					LaneTreeNode node = tree.Find (n => n.Lane.lane == lanes.First().lane);
+					Console.WriteLine ("S");
 
-					if(node != null)
-						lanes = node.GetAllNodes().Select(l => l.Lane).ToList();
-					
 
+
+					// recursivly find LaneTreeNodes that contain the selected DBLanes
+					tree.ForEach ( h => {
+						Console.WriteLine (h.Children.Count);
+						if(h != null) {
+							if(h.Lane != null) {
+								Console.WriteLine (h.Lane.lane);
+								if(lanes.Contains(h.Lane)) {
+									nodes.Add(h);
+								}
+							}
+						}
+					});
+
+					Console.WriteLine ("nodes: " + nodes.Count);
+					if (!wroteHeader && nodes.Count != 0) {
+						wroteHeader = true;
+						matrix.AppendLine ("<tr>");
+						matrix.AppendLine ("<td colspan='" + (limit + 2) + "' style='text-align:left; border-left-color: #FFF; border-right-color: #FFF; " + (!first ? "" : "border-top-color: #FFF") + "'>");
+						matrix.AppendLine ("<h3>" + repos.Key + " </h3>");
+						matrix.AppendLine ("</td></tr>");
+					}
+
+					Console.WriteLine ("E");
+
+					foreach (var node in nodes) {
+						lanes.AddRange(node.GetAllNodes().Select(l => l.Lane).ToList());
+					}
+					Console.WriteLine ("A");
+						
 				} else {
 					lanes = data.Lanes.FindAll (lane => lane.repository == repo);
 				}
-				
+
 				lanes = lanes.FindAll (lane => lane.repository == repo).OrderBy(l => ExtractBranchName(l.max_revision)).ToList();
 
 				foreach (var lane in lanes) {
