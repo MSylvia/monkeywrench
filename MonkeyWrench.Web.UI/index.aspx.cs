@@ -358,7 +358,16 @@ public partial class index : System.Web.UI.Page
 
 		// By repo to lane to hostlane to job ---------------
 		bool first = true; // little style hack for first element
-		var all_repos = data.Lanes.Select(lane => lane.repository).Distinct();
+		List<string> all_repos = new List<string>(data.Lanes.Select(lane => lane.repository).Distinct());
+
+		Console.WriteLine ("Count: " + all_repos.Count());
+
+		LaneTreeNode tree = null;
+		if (data.SelectedLanes.Count > 0) {
+			tree = BuildTree (data);
+		}
+
+		Console.WriteLine ("Count: " + all_repos.Count());
 
 		foreach (var repos in all_repos.GroupBy ((r) => ExtractRepoName (r)).OrderBy( r => r.Key )) {
 			if (string.IsNullOrEmpty (repos.Key))
@@ -374,9 +383,8 @@ public partial class index : System.Web.UI.Page
 				
 				Console.WriteLine ("Repo: " + repo);
 
-				List<DBLane> lanes;
+				List<DBLane> lanes = null;
 				if (data.SelectedLanes.Count > 0) {
-					LaneTreeNode tree = BuildTree(data);
 
 					// No Child Lanes
 					if(tree == null)
@@ -384,19 +392,19 @@ public partial class index : System.Web.UI.Page
 					Console.WriteLine ("wrote: " + wroteHeader);
 
 					List<LaneTreeNode> nodes = new List<LaneTreeNode> ();
-
 					lanes = data.SelectedLanes;
+
 					Console.WriteLine ("S");
-
-
 
 					// recursivly find LaneTreeNodes that contain the selected DBLanes
 					tree.ForEach ( h => {
-						Console.WriteLine (h.Children.Count);
 						if(h != null) {
 							if(h.Lane != null) {
-								Console.WriteLine (h.Lane.lane);
 								if(lanes.Contains(h.Lane)) {
+									for (int i = 0; i < lanes.Count; i++) {
+										Console.WriteLine ("the lanes: " + lanes[i].lane);
+									}
+									Console.WriteLine ("Lane: " + h.Lane.lane + " Children: " + h.Children.Count);
 									nodes.Add(h);
 								}
 							}
@@ -404,26 +412,21 @@ public partial class index : System.Web.UI.Page
 					});
 
 					Console.WriteLine ("nodes: " + nodes.Count);
-					if (!wroteHeader && nodes.Count != 0) {
-						wroteHeader = true;
-						matrix.AppendLine ("<tr>");
-						matrix.AppendLine ("<td colspan='" + (limit + 2) + "' style='text-align:left; border-left-color: #FFF; border-right-color: #FFF; " + (!first ? "" : "border-top-color: #FFF") + "'>");
-						matrix.AppendLine ("<h3>" + repos.Key + " </h3>");
-						matrix.AppendLine ("</td></tr>");
-					}
-
 					Console.WriteLine ("E");
 
 					foreach (var node in nodes) {
 						lanes.AddRange(node.GetAllNodes().Select(l => l.Lane).ToList());
 					}
+
 					Console.WriteLine ("A");
-						
+
 				} else {
 					lanes = data.Lanes.FindAll (lane => lane.repository == repo);
+					Console.WriteLine ("All Count: " + lanes.Count());
+					Console.WriteLine ("DL Count: " + data.Lanes.Count());
 				}
 
-				lanes = lanes.FindAll (lane => lane.repository == repo).OrderBy(l => ExtractBranchName(l.max_revision)).ToList();
+				lanes = lanes.FindAll (lane => lane.repository == repo).OrderBy(l => ExtractBranchName(l.max_revision)).Distinct().ToList();
 
 				foreach (var lane in lanes) {
 					List<DBHostLane> hosts_lanes = data.HostLanes.FindAll (hl => hl.lane_id == lane.id);
@@ -435,6 +438,15 @@ public partial class index : System.Web.UI.Page
 						var rev = FindRevisionWorkViews (data, hosts_lanes [0].id);
 						if (rev == null || rev.Count == 0)
 							continue;
+					}
+
+					if (!wroteHeader && lanes.Count != 0) {
+						wroteHeader = true;
+						Console.WriteLine ("header: " + repos.Key);
+						matrix.AppendLine ("<tr>");
+						matrix.AppendLine ("<td colspan='" + (limit + 2) + "' style='text-align:left; border-left-color: #FFF; border-right-color: #FFF; " + (!first ? "" : "border-top-color: #FFF") + "'>");
+						matrix.AppendLine ("<h3>" + repos.Key + " </h3>");
+						matrix.AppendLine ("</td></tr>");
 					}
 
 					matrix.AppendLine ("<tr>");
@@ -477,70 +489,5 @@ public partial class index : System.Web.UI.Page
 		return matrix.ToString ();
 	}
 
-
-	// Old Page - not used any
-	public string GenerateOverview2 (FrontPageResponse data)
-	{
-		StringBuilder matrix = new StringBuilder ();
-		LaneTreeNode tree = BuildTree (data);
-		List<StringBuilder> header_rows = new List<StringBuilder> ();
-		List<int> hostlane_order = new List<int> ();
-
-		if (tree == null)
-			return string.Empty;
-		
-		// This renders all the host header lanes 
-		WriteLanes (header_rows, tree, 0, tree.Depth); 
-
-		matrix.AppendLine ("<table class='buildstatus'>");
-		for (int i = 0; i < header_rows.Count; i++) {
-			if (header_rows [i].Length == 0)
-				continue;
-
-			matrix.Append ("<tr>");
-			matrix.Append (header_rows [i]);
-			matrix.AppendLine ("</tr>");
-		}
-
-		// Renders all the hosts
-		matrix.AppendLine ("<tr>");
-		WriteHostLanes (matrix, tree, data.Hosts, hostlane_order); 
-		matrix.AppendLine ("</tr>");
-
-		// Renders all the builds
-		int counter = 0;
-		int added = 0;
-		StringBuilder row = new StringBuilder ();
-		do {
-			added = 0;
-			row.Length = 0;
-
-			for (int i = 0; i < hostlane_order.Count; i++) {
-				int hl_id = hostlane_order [i];
-
-				var rev = FindRevisionWorkViews (data, hl_id);
-				DBRevisionWorkView2 work = null;
-
-				if (rev != null && rev.Count > counter) {
-					work = rev [counter];
-					added++;
-				}
-
-				WriteWorkCell (row, work);
-			}
-
-			if (added > 0 && row.Length > 0) {
-				matrix.Append ("<tr>");
-				matrix.Append (row.ToString ());
-				matrix.Append ("</tr>");
-			}
-
-			counter++;
-		} while (counter <= limit && added > 0);
-
-		matrix.AppendLine ("</table>");
-
-		return matrix.ToString ();
-	}
 }
 
