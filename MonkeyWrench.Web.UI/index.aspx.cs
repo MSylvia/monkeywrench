@@ -343,6 +343,14 @@ public partial class index : System.Web.UI.Page
 		return match.Groups [1] + "/" + Path.GetFileNameWithoutExtension(match.Groups [2].ToString());
 	}
 
+	void WriteWorkHeader (StringBuilder matrix, string text, bool first)
+	{
+		matrix.AppendLine ("<tr>");
+		matrix.AppendLine ("<td colspan='" + (limit + 2) + "' style='text-align:left; border-left-color: #FFF; border-right-color: #FFF; " + (!first ? "" : "border-top-color: #FFF") + "'>");
+		matrix.AppendLine ("<h3>" + text + " </h3>");
+		matrix.AppendLine ("</td></tr>");
+	}
+
 	public string ExtractBranchName(string branch) {
 		return (string.IsNullOrEmpty(branch) ? "master" : new Regex (@".*?origin\/(.*?)(\s|$)").Match(branch).Groups[1].ToString());
 	}
@@ -368,35 +376,6 @@ public partial class index : System.Web.UI.Page
 				nodes.Add (target);
 		}));
 
-//		foreach (LaneTreeNode h in tree.Children) {
-//
-//			//tree.ForEach ( h => {
-//			if (h == null)
-//				continue;
-//
-//			Console.WriteLine ("Lane: " + h.Lane.lane + " Children: " + h.Children.Count + " Parent: " + tree.Lane.lane);
-//			if (h.Children.Count > 0)
-//				nodes.AddRange (getAllNodes (h, lanes));
-//
-//			if (h.Lane == null)
-//				continue;
-//					
-//			if (lanes.Contains (h.Lane)) {
-//				//for (int i = 0; i < lanes.Count; i++) {
-//				Console.WriteLine ("the lanes: " + h.Lane.lane);
-//				//}
-//				//Console.WriteLine ("Lane: " + h.Lane.lane + " Children: " + h.Children.Count);
-//				nodes.Add (h);
-//			}
-//		}
-		//});
-
-		//Console.WriteLine ("nodes: " + nodes.Count);
-		//Console.WriteLine ("E");
-
-		//foreach (var node in nodes) {
-			//lanes.AddRange(node.GetAllNodes().Select(l => l.Lane).ToList());
-		//}
 		return nodes;
 	}
 
@@ -413,22 +392,18 @@ public partial class index : System.Web.UI.Page
 		bool first = true; // little style hack for first element
 		List<string> all_repos = new List<string>(data.Lanes.Select(lane => lane.repository).Distinct());
 
-		Console.WriteLine ("Repos Count: " + all_repos.Count());
-
 		LaneTreeNode tree = null;
 		if (data.SelectedLanes.Count > 0) {
 			tree = BuildTree (data);
 		}
 
-		Console.WriteLine ("Repos Count: " + all_repos.Count());
-
 		foreach (var repos in all_repos.GroupBy ((r) => ExtractRepoName (r)).OrderBy( r => r.Key )){
 			if (string.IsNullOrEmpty (repos.Key))
 				continue;
 
-			bool wroteHeader = false;
-
 			Console.WriteLine ("Group: " + repos.Key + " Count: " + repos.Count());
+
+			bool wroteHeader = false;
 
 			foreach (var repo in repos) {
 				if (string.IsNullOrEmpty (repo))
@@ -444,43 +419,18 @@ public partial class index : System.Web.UI.Page
 					// No Child Lanes
 					if(tree == null)
 						continue;
-					Console.WriteLine ("wrote: " + wroteHeader);
 
 					List<LaneTreeNode> nodes = new List<LaneTreeNode> ();
 					lanes = data.SelectedLanes;
-
-					Console.WriteLine ("S");
-
 					nodes = getAllNodes (tree, lanes);
-					// recursivly find LaneTreeNodes that contain the selected DBLanes
-//					tree.ForEach ( h => {
-//						if(h != null) {
-//							if(h.Lane != null) {
-//								if(lanes.Contains(h.Lane)) {
-//									for (int i = 0; i < lanes.Count; i++) {
-//										Console.WriteLine ("the lanes: " + lanes[i].lane);
-//									}
-//									Console.WriteLine ("Lane: " + h.Lane.lane + " Children: " + h.Children.Count);
-//									nodes.Add(h);
-//								}
-//							}
-//						}
-//					});
-//
-					Console.WriteLine ("nodes: " + nodes.Count);
-					Console.WriteLine ("E");
-//
+
 					foreach (var node in nodes) {
 						lanes.AddRange(node.GetAllNodes().Select(l => l.Lane).ToList());
 					}
-
-					Console.WriteLine ("A");
 				
 				// All Lanes
 				} else {
 					lanes = data.Lanes.FindAll (lane => lane.repository == repo);
-					Console.WriteLine ("All Count: " + lanes.Count());
-					Console.WriteLine ("DL Count: " + data.Lanes.Count());
 				}
 
 				lanes = lanes.FindAll (lane => lane.repository == repo).OrderBy(l => ExtractBranchName(l.max_revision)).Distinct().ToList();
@@ -500,10 +450,7 @@ public partial class index : System.Web.UI.Page
 					if (!wroteHeader && lanes.Count != 0) {
 						wroteHeader = true;
 						Console.WriteLine ("header: " + repos.Key);
-						matrix.AppendLine ("<tr>");
-						matrix.AppendLine ("<td colspan='" + (limit + 2) + "' style='text-align:left; border-left-color: #FFF; border-right-color: #FFF; " + (!first ? "" : "border-top-color: #FFF") + "'>");
-						matrix.AppendLine ("<h3>" + repos.Key + " </h3>");
-						matrix.AppendLine ("</td></tr>");
+						WriteWorkHeader (matrix, repos.Key, first);
 					}
 
 					matrix.AppendLine ("<tr>");
