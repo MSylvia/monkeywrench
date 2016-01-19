@@ -12,19 +12,15 @@
 
 public partial class Master {
 	
-	protected System.Web.UI.HtmlControls.HtmlLink cssSkin;
-	
-	protected System.Web.UI.HtmlControls.HtmlLink idFavicon;
-	
-	protected System.Web.UI.HtmlControls.HtmlImage imgLogo;
-	
 	protected System.Web.UI.WebControls.Literal cellLogin;
 	
 	protected System.Web.UI.WebControls.Literal cellUploadStatus;
 	
-	protected System.Web.UI.HtmlControls.HtmlGenericControl adminmenu;
-	
 	protected System.Web.UI.WebControls.Literal cellLogout;
+	
+	protected System.Web.UI.HtmlControls.HtmlGenericControl HostStatusWorking;
+	
+	protected System.Web.UI.HtmlControls.HtmlGenericControl HostStatusIdle;
 	
 	protected System.Web.UI.WebControls.Table tableMainTree;
 	
@@ -33,4 +29,6 @@ public partial class Master {
 	protected System.Web.UI.HtmlControls.HtmlForm form1;
 	
 	protected System.Web.UI.WebControls.ContentPlaceHolder content;
+	
+	protected System.Web.UI.HtmlControls.HtmlGenericControl adminmenu;
 }

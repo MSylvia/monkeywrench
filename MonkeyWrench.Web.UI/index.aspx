@@ -1,11 +1,23 @@
 ﻿<%@ Page Language="C#" MasterPageFile="~/Master.master" AutoEventWireup="true" Inherits="index" Codebehind="index.aspx.cs" EnableViewState="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="content" runat="Server" EnableViewState="False">
-	<div id="buildtable-header">
-    <h3>
-        Build matrix</h3>
-    </div>
-    <div id="buildtable" runat="server" />
+	<section class="content-header">
+      <h1>
+        Build Matrix
+        <small>Tiny Text</small>
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-home"></i> Home</a></li>
+        <li class="active">Build Matrix</li>
+      </ol>
+    </section>
+
+    <section class="content">
+        <div class="row">
+    		<div id="buildtable" runat="server" />
+    	</div>
+    </section>
+
     <div><asp:Label runat="server" ID="lblMessage" ForeColor="Red" /></div>
     <div id="buildtable-footer">
     <div><a href="SelectLanes.aspx">Select lanes</a></div>

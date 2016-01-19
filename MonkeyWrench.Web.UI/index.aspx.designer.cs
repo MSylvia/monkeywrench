@@ -18,4 +18,3 @@ public partial class index {
 	
 	protected System.Web.UI.WebControls.Label lblMessage;
 }
-

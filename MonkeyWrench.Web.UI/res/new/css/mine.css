@@ -1,0 +1,155 @@
+td a {
+    color: black;
+}
+
+td a:hover {
+    color: grey;
+}
+
+td:nth-child(1n+3) {
+    text-align: center;
+}
+
+td:nth-child(1n+0) {
+    width: 300px;
+}
+
+.success {
+    background:#00FF7F; /* springgreen */
+}
+
+.success1 {
+    background:#00DD66;
+}
+
+.success2 {
+    background:#00BB44;
+}
+
+.success3 {
+    background:#009922;
+}
+
+.failure, .failed {
+    background:#FF0000; /* red */
+}
+
+.failure1, .failed1 {
+    background:#DD0000;
+}
+
+.failure2, .failed2 {
+    background:#BB0000;
+}
+
+.failure3, .failed3 {
+    background:#990000;
+}
+
+.running, .inprogress, .executing {
+    background:#FFFF00; /*yellow*/
+}
+
+.running1, .inprogress1, .executing1 {
+    background:#DDDD00;
+}
+
+.running2, .inprogress2, .executing3 {
+    background:#BBBB00;
+}
+
+.running3, .inprogress3, .executing3 {
+    background:#999900;
+}
+
+.notused {
+    background:white;
+}
+
+.skipped {
+    background:white;
+}
+
+.paused 
+{
+    background:lightblue;
+}
+
+.aborted 
+{
+    background:purple;
+}
+
+.ignore
+{
+    background:lightgray;
+}
+
+.timeout {
+    background:#808080; /*gray*/
+}
+
+.timeout1 {
+    background:#707070;
+}
+
+.timeout2 {
+    background:#606060;
+}
+
+.timeout3 {
+    background:#505050;
+}
+
+.new {
+    background:#d3d3d3;
+}
+
+.queued, .notdone {
+    background:#FAAFBE; /*pink*/
+}
+
+.queued1, .notdone1 {
+    background:#EA9FAE;
+}
+
+.queued2, .notdone2 {
+    background:#DA8F9E;
+}
+
+.queued3, .notdone3 {
+    background:#CA7F8E;
+}
+
+
+.timeout {
+    background:#4682B4; /*steelblue*/
+}
+
+.timeout1 {
+    background:#3672A4; 
+}
+
+.timeout2 {
+    background:#266294;
+}
+
+.timeout3 {
+    background:#165284;
+}
+
+.testfailure, .issues {
+    background: #FFA500; /* orange */
+}
+
+.testfailure1, .issues1 {
+    background: #DD8300;
+}
+
+.testfailure2, .issues2 {
+    background: #BB6100;
+}
+
+.testfailure3, .issues3 {
+    background: #994000;
+}

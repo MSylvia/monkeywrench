@@ -46,7 +46,7 @@ namespace MonkeyWrench
 		public static int ConnectionRetryDuration = 1440;
 		public static string LockingAlgorithm = "semaphore";
 		public static string SchedulerAccount = "scheduler";
-		public static string IndexPage = "indexLegacy.aspx";
+		public static string IndexPage = "index.aspx";
 		public static string SchedulerPassword;
 		public static string ChildProcessAlgorithm = "pgrep";
 		public static string Platform = ""; // detect automatically

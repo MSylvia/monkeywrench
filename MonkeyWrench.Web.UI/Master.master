@@ -1,56 +1,304 @@
 ﻿<%@ Master Language="C#" AutoEventWireup="True" Inherits="Master" CodeBehind="Master.master.cs" EnableViewState="false" %>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>MonkeyWrench</title>
-    <link rel='stylesheet' href='res/default.css' type='text/css' />
-    <link rel='stylesheet' href='res/skin.css' type='text/css' runat="server" id='cssSkin' />
-    <link rel='icon' id='idFavicon' runat='server' href='res/favicon.ico' />
-    <link href='//fonts.googleapis.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
-    <meta http-equiv='Content-Type' content='text/html;charset=utf-8' />
-    <script type="text/javascript" src="Master.js"> </script>
+    <%-- Tell the browser to be responsive to screen width --%>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <%-- Bootstrap 3.3.5 --%>
+    <link rel="stylesheet" href="res/new/bootstrap/css/bootstrap.min.css">
+    <%-- Font Awesome --%>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <%-- Ionicons --%>
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <%-- Theme style --%>
+    <link rel="stylesheet" href="res/new/css/AdminLTE.min.css">
+    <%-- AdminLTE Skins. Choose a skin from the css/skins folder instead of downloading all of them to reduce the load. --%>
+    <link rel="stylesheet" href="res/new/css/skins/_all-skins.min.css">
+
+    <%-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries --%>
+    <%-- WARNING: Respond.js doesn't work if you view the page via file:// --%>
+    <%--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]--%>
+    <link rel="stylesheet" href="res/new/css/mine.css">
 </head>
-<body>
-    <div id="siteheader">
-	    <a href="<%=MonkeyWrench.Configuration.IndexPage%>" id="logo"><img id="imgLogo" runat="server" alt="logo" src="res/logo.png" /></a>
-	    <a id="title" href="<%=MonkeyWrench.Configuration.IndexPage%>">MonkeyWrench - DEVELOPER MODE</a>
-        <ul id="nav">
-	        <asp:Literal ID="cellLogin" runat="server" />
-	        <li><a href="doc/index.html">Help</a></li>
-            <asp:Literal id="cellUploadStatus" runat="server"></asp:Literal> 
-            <li id="adminmenu" runat="server"><a href='Admin.aspx'>Administration</a>
-                <ul>
-                    <li class="adminitem"><a href='EditHosts.aspx'>Edit Hosts</a></li> 
-                    <li class="adminitem"><a href='EditLanes.aspx'>Edit Lanes</a></li> 
-                    <li class="adminitem"><a href='Users.aspx'>Edit Users</a></li> 
-                    <li class="adminitem"><a href='Identities.aspx'>Edit Identities</a></li> 
-                    <li class="adminitem"><a href='Notifications.aspx'>Edit Notifications</a></li> 
-                    <li class="adminitem"><a href='Admin.aspx?action=schedule'>Execute scheduler (full update)</a></li>
-                    <li class="adminitem"><a href="BuildBotStatus.aspx">View BuildBot status</a></li>
-                    <li class="adminitem"><a href="Releases.aspx">View MonkeyWrench releases</a></li>
-                    <li class="adminitem"><a href="ViewServerLog.aspx">View Server Log</a></li>
+<body class="hold-transition skin-blue sidebar-mini sidebar-collapse">
+<div class="wrapper">
+
+      <header class="main-header">
+        <%-- Logo --%>
+        <a href="<%=MonkeyWrench.Configuration.IndexPage%>" class="logo">
+          <%-- mini logo for sidebar mini 50x50 pixels --%>
+          <span class="logo-mini"><b>M</b>W</span>
+          <%-- logo for regular state and mobile devices --%>
+          <span class="logo-lg"><b>Monkey</b>Wrench</span>
+        </a>
+        <%-- Header Navbar: style can be found in header.less --%>
+        <nav class="navbar navbar-static-top" role="navigation">
+          <%-- Sidebar toggle button--%>
+          <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+            <span class="sr-only">Toggle navigation</span>
+          </a>
+          <div class="navbar-custom-menu">
+            <ul class="nav navbar-nav">
+              <%-- Messages: style can be found in dropdown.less--%>
+             
+              	<asp:Literal ID="cellLogin" runat="server" />
+				<asp:Literal id="cellUploadStatus" runat="server"></asp:Literal> 
+				<asp:Literal ID="cellLogout" runat="server" />
+
+              <%-- User Account: style can be found in dropdown.less --%>
+              <li class="dropdown user user-menu">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  <img src="res/new/img/me.jpeg" class="user-image" alt="User Image">
+                  <span class="hidden-xs">Matt Sylvia</span>
+                </a>
+                <ul class="dropdown-menu">
+                  <%-- User image --%>
+                  <li class="user-header">
+                    <img src="res/new/img/me.jpeg" class="img-circle" alt="User Image">
+                    <p>
+                      Matt Sylvia - Release Engineering
+                      <small>matthew.sylvia@xamarin.com</small>
+                    </p>
+                  </li>
+                  <%-- Menu Footer--%>
+                  <li class="user-footer">
+                    <div class="pull-left">
+                      <a href="#" class="btn btn-default btn-flat">Profile</a>
+                    </div>
+                    <div class="pull-right">
+                      <a href="Login.aspx?action=logout" class="btn btn-default btn-flat">Sign out</a>
+                    </div>
+                  </li>
                 </ul>
+              </li>
+              <%-- Control Sidebar Toggle Button --%>
+              <li>
+                <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+      <%-- Left side column. contains the logo and sidebar --%>
+      <aside class="main-sidebar">
+        <%-- sidebar: style can be found in sidebar.less --%>
+        <section class="sidebar">
+
+        <%-- sidebar menu: : style can be found in sidebar.less --%>
+			<ul class="sidebar-menu">
+
+
+
+			<li class="header">LANES</li>
+			<li class="treeview">
+			  <a href="#">
+			    <i class="fa fa-map-signs"></i> <span>All</span>
+			    <i class="fa fa-angle-left pull-right"></i>
+			  </a>
+			  <ul class="treeview-menu">
+			    <li><a href="#">Level One</a></li>
+			    <li>
+			      <a href="#">Level One <i class="fa fa-angle-left pull-right"></i></a>
+			      <ul class="treeview-menu">
+			        <li><a href="#">Level Two</a></li>
+			        <li>
+			          <a href="#">Level Two <i class="fa fa-angle-left pull-right"></i></a>
+			          <ul class="treeview-menu">
+			            <li><a href="#">Level Three</a></li>
+			            <li><a href="#">Level Three</a></li>
+			          </ul>
+			        </li>
+			      </ul>
+			    </li>
+			    <li><a href="#">Level One</a></li>
+			  </ul>
 			</li>
-			<asp:Literal ID="cellLogout" runat="server" />
-		</ul>
-    </div>
-	<div id="content-container">
-      <div id="left-content" class="left-content">
-        <asp:Table ID="tableMainTree" runat="server" CellPadding="0" CellSpacing="0" CssClass="lefttree" />
-        <asp:Table ID="tableHostStatus" runat="server" CellPadding="0" CellSpacing="0" CssClass="hoststatus">
-          <asp:TableHeaderRow>
-            <asp:TableHeaderCell Text="BuildBot Status" />
-          </asp:TableHeaderRow>
-        </asp:Table>
-      </div>
-      <div id="right-content" class="right-content">
-        <form id="form1" runat="server">
-          <asp:ContentPlaceHolder ID="content" runat="server" EnableViewState="false" />
-        </form>
-      </div>
-	</div>
-</body>
+
+			<li class="header">TAGS</li>
+			<li class="treeview">
+			  <a href="#">
+			    <i class="fa fa-tag"></i> <span>All</span>
+			    <i class="fa fa-angle-left pull-right"></i>
+			  </a>
+			  <ul class="treeview-menu">
+			  </ul>
+			</li>
+
+			<li class="header">BOT STATUS</li>
+			<li ID="HostStatusWorking" class="treeview" runat="server" />
+			<li ID="HostStatusIdle" class="treeview" runat="server" />
+
+			<asp:Table ID="tableMainTree" runat="server" CellPadding="0" CellSpacing="0" CssClass="lefttree" />
+        	<asp:Table ID="tableHostStatus" runat="server" CellPadding="0" CellSpacing="0" CssClass="hoststatus">
+          		<asp:TableHeaderRow>
+            		<asp:TableHeaderCell Text="BuildBot Status" />
+          		</asp:TableHeaderRow>
+        	</asp:Table>
+
+			</ul>
+
+          </section>
+        <%-- /.sidebar --%>
+
+      </aside>
+
+      <%-- Content Wrapper. Contains page content --%>
+      <div class="content-wrapper">
+
+		<%-- Content Header (Page header) --%>
+		<%-- Main content --%>
+		<form id="form1" runat="server">
+			<asp:ContentPlaceHolder ID="content" runat="server" EnableViewState="false" />
+		</form>
+      </div><%-- /.content-wrapper --%>
+      <footer class="main-footer">
+        <div class="pull-right hidden-xs">
+          <b>Version</b> 1.0.0
+        </div>
+        <strong>&copy; 2016 Mono Project.</strong> <a href="#">Legal Notices</a>
+      </footer>
+
+    <%-- Control Sidebar --%>
+      <aside class="control-sidebar control-sidebar-dark">
+        <%-- Create the tabs --%>
+        <ul class="nav nav-tabs nav-justified control-sidebar-tabs">
+          <li class="active"><a href="#control-sidebar-home-tab" data-toggle="tab"><i class="fa fa-wrench"></i></a></li>
+          <li><a href="#control-sidebar-settings-tab" data-toggle="tab"><i class="fa fa-cog"></i></a></li>
+        </ul>
+        <%-- Tab panes --%>
+        <div class="tab-content">
+          <%-- Home tab content --%>
+          <div id="adminmenu" runat="server">
+          <div class="tab-pane active" id="control-sidebar-home-tab">
+            <a href='Admin.aspx'><h3 class="control-sidebar-heading">Administration</h3></a>
+            <ul class="control-sidebar-menu">
+              <li>
+                <a href="EditHosts.aspx">
+                  <i class="menu-icon fa fa-server"></i>
+                  <div class="menu-info">
+                    <h4 class="control-sidebar-subheading">Edit Hosts</h4>
+                    <p>Text</p>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="EditLanes.aspx">
+                  <i class="menu-icon fa fa-map-signs"></i>
+                  <div class="menu-info">
+                    <h4 class="control-sidebar-subheading">Edit Lanes</h4>
+                    <p>Text</p>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="Users.aspx">
+                  <i class="menu-icon fa fa-users"></i>
+                  <div class="menu-info">
+                    <h4 class="control-sidebar-subheading">Edit Users</h4>
+                    <p>Text</p>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="Identities.aspx">
+                  <i class="menu-icon fa fa-circle-o"></i>
+                  <div class="menu-info">
+                    <h4 class="control-sidebar-subheading">Edit Identities</h4>
+                    <p>Text</p>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="Notifications.aspx">
+                  <i class="menu-icon fa fa-bell"></i>
+                  <div class="menu-info">
+                    <h4 class="control-sidebar-subheading">Edit Notifications</h4>
+                    <p>Text</p>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="Admin.aspx?action=schedule">
+                  <i class="menu-icon fa fa-gears"></i>
+                  <div class="menu-info">
+                    <h4 class="control-sidebar-subheading">Execute Scheduler</h4>
+                    <p>Full Update</p>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="BuildBotStatus.aspx">
+                  <i class="menu-icon fa fa-bolt"></i>
+                  <div class="menu-info">
+                    <h4 class="control-sidebar-subheading">View BuildBot Status</h4>
+                    <p>Full Update</p>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="Releases.aspx">
+                  <i class="menu-icon fa fa-map-o"></i>
+                  <div class="menu-info">
+                    <h4 class="control-sidebar-subheading">View MonkeyWrench Releases</h4>
+                    <p>Full Update</p>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <a href="ViewServerLog.aspx">
+                  <i class="menu-icon fa fa-file-text-o"></i>
+                  <div class="menu-info">
+                    <h4 class="control-sidebar-subheading">View Server Log</h4>
+                    <p>Full Update</p>
+                  </div>
+                </a>
+              </li>
+            </ul><%-- /.control-sidebar-menu --%>
+
+          </div><%-- /.tab-pane --%></div>
+          <%-- Stats tab content --%>
+          <div class="tab-pane" id="control-sidebar-stats-tab">Stats Tab Content</div><%-- /.tab-pane --%>
+          <%-- Settings tab content --%>
+          <div class="tab-pane" id="control-sidebar-settings-tab">
+            <div class="tab-pane active" id="control-sidebar-home-tab">
+            <h3 class="control-sidebar-heading">Administration</h3>
+            <ul class="control-sidebar-menu">
+              <li>
+                <a href="doc/index.html">
+                  <i class="menu-icon fa fa-graduation-cap"></i>
+                  <div class="menu-info">
+                    <h4 class="control-sidebar-subheading">View Help</h4>
+                    <p>Server configuration help</p>
+                  </div>
+                </a>
+              </li>
+              </ul>
+              </div>
+          </div><%-- /.tab-pane --%>
+        </div>
+      </aside><%-- /.control-sidebar --%>
+      <%-- Add the sidebar's background. This div must be placed
+           immediately after the control sidebar --%>
+      <div class="control-sidebar-bg"></div>
+    </div><%-- ./wrapper --%>
+
+
+
+    <%-- jQuery 2.1.4 --%>
+    <script src="res/new/plugins/jQuery/jQuery-2.1.4.min.js"></script>
+    <%-- Bootstrap 3.3.5 --%>
+    <script src="res/new/bootstrap/js/bootstrap.min.js"></script>
+    <%-- AdminLTE App --%>
+    <script src="res/new/js/app.min.js"></script>
+
+  </body>
 </html>
 

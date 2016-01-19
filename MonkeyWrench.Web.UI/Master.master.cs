@@ -61,9 +61,9 @@ public partial class Master : System.Web.UI.MasterPage
 	{
 		LoadView ();
 		if (!string.IsNullOrEmpty (Configuration.SiteSkin)) {
-			idFavicon.Href = "res/" + Configuration.SiteSkin + "/favicon.ico";
-			imgLogo.Src = "res/" + Configuration.SiteSkin + "/logo.png";
-			cssSkin.Href = "res/" + Configuration.SiteSkin + "/" + Configuration.SiteSkin + ".css";
+			//idFavicon.Href = "res/" + Configuration.SiteSkin + "/favicon.ico";
+			//imgLogo.Src = "res/" + Configuration.SiteSkin + "/logo.png";
+			//cssSkin.Href = "res/" + Configuration.SiteSkin + "/" + Configuration.SiteSkin + ".css";
 		}
 	}
 
@@ -91,32 +91,43 @@ public partial class Master : System.Web.UI.MasterPage
 		}
 
 		if (tree_response != null) {
-			CreateTree ();
+			//CreateTree ();
 			CreateHostStatus ();
 		}
+
+
 	}
 
 	private void CreateHostStatus ()
 	{
-		try {
-			while (tableHostStatus.Rows.Count > 1)
-				tableHostStatus.Rows.RemoveAt (tableHostStatus.Rows.Count - 1);
 
+		string headerW = @"<a href=""#"">
+			<i class=""fa fa-server""></i> <span>Working</span>
+			<i class=""fa fa-angle-left pull-right""></i>
+			</a>
+			<ul class=""treeview-menu"">";
+		string headerL = @"<a href=""#"">
+			<i class=""fa fa-server""></i> <span>Idle</span>
+			<i class=""fa fa-angle-left pull-right""></i>
+			</a>
+			<ul class=""treeview-menu"">";
+		string footer = "</ul></li>";
+
+		try {
 			var idles = new List<string> ();
 			var working = new List<string> ();
-			TableRow row;
 
 			for (int i = 0; i < tree_response.HostStatus.Count; i++) {
 				var status = tree_response.HostStatus [i];
 				var idle = string.IsNullOrEmpty (status.lane);
-				
+
 				string tooltip = string.Empty;
 				var color = EditHosts.GetReportDateColor (true, status.report_date);
 				if (!idle)
 					tooltip = string.Format ("Executing {0}\n", status.lane);
 				tooltip += string.Format ("Last check-in date: {0}", index.TimeDiffToString (status.report_date, DateTime.Now));
-				
-				var str = string.Format ("<span style='color: {3}; cursor: pointer;' onclick=\"javascript: window.location = 'ViewHostHistory.aspx?host_id={0}'\" title='{2}'>{1}</span>", status.id, status.host, HttpUtility.HtmlEncode (tooltip), color);
+
+				var str = string.Format("<li><a href=\"ViewHostHistory.aspx?host_id={0}\" title='{2}' class=\"text-{3}\"><i class=\"fa fa-circle-o text-{3}\"></i>{1}</a></li>", status.id, status.host, HttpUtility.HtmlEncode (tooltip), color);
 				if (idle) {
 					idles.Add (str);
 				} else {
@@ -124,27 +135,14 @@ public partial class Master : System.Web.UI.MasterPage
 				}
 			}
 
-			if (!string.IsNullOrEmpty (tree_response.UploadStatus))
-				cellUploadStatus.Text = "<span class='uploadstatus'>" + tree_response.UploadStatus + "</span>";
+			string w = string.Join ("\n", working.ToArray ());
+			string l = string.Join ("\n", idles.ToArray ());
 
-			if (working.Count > 0) {
-				row = Utils.CreateTableRow ("Working");
-				row.CssClass = "hoststatus_header";
-				tableHostStatus.Rows.Add (row);
-				row = Utils.CreateTableRow (string.Join ("<br/> ", working.ToArray ()));
-				tableHostStatus.Rows.Add (row);
-			}
-
-			if (idles.Count > 0) {
-				row = Utils.CreateTableRow ("Idle");
-				row.CssClass = "hoststatus_header";
-				tableHostStatus.Rows.Add (row);
-				row = Utils.CreateTableRow (string.Join ("<br/> ", idles.ToArray ()));
-				tableHostStatus.Rows.Add (row);
-			}
-
+			HostStatusWorking.InnerHtml = headerW + w + footer;
+			HostStatusIdle.InnerHtml = headerL + l + footer;
 		} catch {
-			tableHostStatus.Visible = false;
+			HostStatusWorking.InnerHtml = "";
+			HostStatusIdle.InnerHtml = "";
 		}
 	}
 

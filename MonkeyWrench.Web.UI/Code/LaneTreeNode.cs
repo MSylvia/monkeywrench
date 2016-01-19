@@ -16,6 +16,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using log4net;
+using System.Linq;
 
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.Web.WebServices;
@@ -171,7 +172,7 @@ public class LaneTreeNode
 		// we need to create a tree of the lanes
 		LaneTreeNode root = new LaneTreeNode (null);
 		Dictionary<int, LaneTreeNode> nodes = new Dictionary<int, LaneTreeNode> ();
-		List<DBLane> lanes_clone = FilterToLatestMonth (lanes);
+		List<DBLane> lanes_clone = (List<DBLane>)lanes; //FilterToLatestMonth (lanes);
 
 		while (lanes_clone.Count != 0) {
 			int c = lanes_clone.Count;
@@ -200,7 +201,8 @@ public class LaneTreeNode
 		}
 
 		root.Sort ();
-
+		Console.WriteLine ("lanes_clone: " + lanes_clone.Count);
+		Console.WriteLine ("lanes: " + lanes.Count());
 		return root;
 	}
 }

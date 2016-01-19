@@ -345,10 +345,25 @@ public partial class index : System.Web.UI.Page
 
 	void WriteWorkHeader (StringBuilder matrix, string text, bool first)
 	{
-		matrix.AppendLine ("<tr>");
-		matrix.AppendLine ("<td colspan='" + (limit + 2) + "' style='text-align:left; border-left-color: #FFF; border-right-color: #FFF; " + (!first ? "" : "border-top-color: #FFF") + "'>");
-		matrix.AppendLine ("<h3>" + text + " </h3>");
-		matrix.AppendLine ("</td></tr>");
+		matrix.AppendLine (
+			@"<div class=""col-md-12"">
+			<div class=""box box-default"">
+			<div class=""box-header with-border"">
+			<h3 class=""box-title"">");
+		matrix.AppendLine (text);
+		matrix.AppendLine (
+			@"</h3>
+			<div class=""box-tools pull-right"">
+			<button class=""btn btn-box-tool"" data-widget=""collapse""><i class=""fa fa-minus""></i></button></div></div>
+			<div style=""display: block;"" class=""box-body"">
+			<div class=""box-body table-responsive no-padding"">
+			<table class=""table table-bordered"">");
+
+
+//		matrix.AppendLine ("<tr>");
+//		matrix.AppendLine ("<td colspan='" + (limit + 2) + "' style='text-align:left; border-left-color: #FFF; border-right-color: #FFF; " + (!first ? "" : "border-top-color: #FFF") + "'>");
+//		matrix.AppendLine ("<h3>" + text + " </h3>");
+//		matrix.AppendLine ("</td></tr>");
 	}
 
 	public string ExtractBranchName(string branch) {
@@ -383,10 +398,10 @@ public partial class index : System.Web.UI.Page
 	{
 		StringBuilder matrix = new StringBuilder ();
 
-		matrix.AppendLine ("<script type=\"text/javascript\">(function(document) {\n\t'use strict';\n\n\tvar LightTableFilter = (function(Arr) {\n\n\t\tvar _input;\n\n\t\tfunction _onInputEvent(e) {\n\t\t\t_input = e.target;\n\t\t\tvar tables = document.getElementsByClassName(_input.getAttribute('data-table'));\n\t\t\tArr.forEach.call(tables, function(table) {\n\t\t\t\tArr.forEach.call(table.tBodies, function(tbody) {\n\t\t\t\t\tArr.forEach.call(tbody.rows, _filter);\n\t\t\t\t});\n\t\t\t});\n\t\t}\n\n\t\tfunction _filter(row) {\n\t\t\tvar text = row.textContent.toLowerCase(), val = _input.value.toLowerCase();\n\t\t\trow.style.display = text.indexOf(val) === -1 ? 'none' : 'table-row';\n\t\t}\n\n\t\treturn {\n\t\t\tinit: function() {\n\t\t\t\tvar inputs = document.getElementsByClassName('light-table-filter');\n\t\t\t\tArr.forEach.call(inputs, function(input) {\n\t\t\t\t\tinput.oninput = _onInputEvent;\n\t\t\t\t});\n\t\t\t}\n\t\t};\n\t})(Array.prototype);\n\n\tdocument.addEventListener('readystatechange', function() {\n\t\tif (document.readyState === 'complete') {\n\t\t\tLightTableFilter.init();\n\t\t}\n\t});\n\n})(document);</script>");
-		matrix.AppendLine ("Fuzzy Filter: <input type=\"search\" class=\"light-table-filter\" data-table=\"order-table\" placeholder=\"Filter\">");
+		//matrix.AppendLine ("<script type=\"text/javascript\">(function(document) {\n\t'use strict';\n\n\tvar LightTableFilter = (function(Arr) {\n\n\t\tvar _input;\n\n\t\tfunction _onInputEvent(e) {\n\t\t\t_input = e.target;\n\t\t\tvar tables = document.getElementsByClassName(_input.getAttribute('data-table'));\n\t\t\tArr.forEach.call(tables, function(table) {\n\t\t\t\tArr.forEach.call(table.tBodies, function(tbody) {\n\t\t\t\t\tArr.forEach.call(tbody.rows, _filter);\n\t\t\t\t});\n\t\t\t});\n\t\t}\n\n\t\tfunction _filter(row) {\n\t\t\tvar text = row.textContent.toLowerCase(), val = _input.value.toLowerCase();\n\t\t\trow.style.display = text.indexOf(val) === -1 ? 'none' : 'table-row';\n\t\t}\n\n\t\treturn {\n\t\t\tinit: function() {\n\t\t\t\tvar inputs = document.getElementsByClassName('light-table-filter');\n\t\t\t\tArr.forEach.call(inputs, function(input) {\n\t\t\t\t\tinput.oninput = _onInputEvent;\n\t\t\t\t});\n\t\t\t}\n\t\t};\n\t})(Array.prototype);\n\n\tdocument.addEventListener('readystatechange', function() {\n\t\tif (document.readyState === 'complete') {\n\t\t\tLightTableFilter.init();\n\t\t}\n\t});\n\n})(document);</script>");
+		//matrix.AppendLine ("Fuzzy Filter: <input type=\"search\" class=\"light-table-filter\" data-table=\"order-table\" placeholder=\"Filter\">");
 
-		matrix.AppendLine ("<table class='buildstatus order-table table'>");
+		//matrix.AppendLine ("<table class='buildstatus order-table table'>");
 
 		// By repo to lane to hostlane to job ---------------
 		bool first = true; // little style hack for first element
@@ -457,7 +472,7 @@ public partial class index : System.Web.UI.Page
 					matrix.AppendFormat ("<td rowspan='{0}' title='Branch: {2}'>{1}</td>",
 						(count != 1 ? count + 1 : count),
 						lane.lane,
-						ExtractBranchName(lane.max_revision)
+						ExtractBranchName (lane.max_revision)
 					);
 
 					foreach (var host_lane in hosts_lanes) {
@@ -484,11 +499,15 @@ public partial class index : System.Web.UI.Page
 							matrix.AppendLine ("</tr>");
 					}
 					matrix.AppendLine ("</tr>");
+
 				}
+				
 			}
+			if (wroteHeader)
+				matrix.AppendLine ("</table> </div></div></div></div>");
 		}
 
-		matrix.AppendLine ("</table>");
+		//matrix.AppendLine ("</table>");
 
 		return matrix.ToString ();
 	}
