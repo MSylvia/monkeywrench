@@ -98,7 +98,7 @@
 			<ul class="sidebar-menu">
 
 
-
+			<!-- Main header -->
 			<li class="header">LANES</li>
 			<li class="treeview">
 			  <a href="#">
@@ -106,11 +106,21 @@
 			    <i class="fa fa-angle-left pull-right"></i>
 			  </a>
 			  <ul class="treeview-menu">
+			 <!-- ====== -->
+
+
+			 	<!-- No Childen -->
 			    <li><a href="#">Level One</a></li>
-			    <li>
-			      <a href="#">Level One <i class="fa fa-angle-left pull-right"></i></a>
-			      <ul class="treeview-menu">
+			    <!-- ====== -->
+
+
+			    <!-- W/ Childen header -->
+			    <li><a href="#">Level One <i class="fa fa-angle-left pull-right"></i></a>
+					<ul class="treeview-menu">
+			    <!-- ====== -->
+
 			        <li><a href="#">Level Two</a></li>
+
 			        <li>
 			          <a href="#">Level Two <i class="fa fa-angle-left pull-right"></i></a>
 			          <ul class="treeview-menu">
@@ -118,11 +128,36 @@
 			            <li><a href="#">Level Three</a></li>
 			          </ul>
 			        </li>
+
+			        <li>
+			          <span><a href="http://10.1.24.44:8123/index.aspx?lane=monodroid">monodroid</a> <a href="#" class="pull-right"><i class="fa fa-angle-left"></i></a></span>
+			          <ul class="treeview-menu">
+			            <li><a href="http://10.1.24.44:8123/index.aspx?lane=monodroid-linux">monodroid-linux</a></li>
+			            <li><a href="http://10.1.24.44:8123/index.aspx?lane=monodroid-windows">monodroid-windows</a></li>
+			          </ul>
+			        </li>
+
+			        <li>
+			          <span><a href="#">Level Two</a> <a href="#"><i class="fa fa-angle-left pull-right"></i></a></span>
+			          <ul class="treeview-menu">
+			            <li><a href="#">Level Three</a></li>
+			            <li><a href="#">Level Three</a></li>
+			          </ul>
+			        </li>
+
+
+			    <!-- W/ Childen header -->
 			      </ul>
 			    </li>
+			    <!-- ====== -->
+
 			    <li><a href="#">Level One</a></li>
+
+
+			<!-- Main footer -->
 			  </ul>
 			</li>
+			<!-- ====== -->
 
 			<li class="header">TAGS</li>
 			<li class="treeview">
@@ -294,7 +329,7 @@
     <%-- Bootstrap 3.3.5 --%>
     <script src="res/new/bootstrap/js/bootstrap.min.js"></script>
     <%-- AdminLTE App --%>
-    <script src="res/new/js/app.min.js"></script>
+    <script src="res/new/js/app.js"></script>
 
   </body>
 </html>

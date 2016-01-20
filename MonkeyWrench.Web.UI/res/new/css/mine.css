@@ -14,6 +14,27 @@ td:nth-child(1n+0) {
     width: 300px;
 }
 
+
+.sidebar-menu .treeview-menu > li > span {
+    padding: 5px 5px 5px 15px;
+    display: block;
+    font-size: 14px;
+    white-space: initial;
+}
+
+.sidebar-menu .treeview-menu > li > span > a > i {
+    margin-right: 15px;
+    margin-top: 3px;
+}
+
+.skin-blue .treeview-menu > li > span > a {
+    color: #8AA4AF;
+}
+
+.skin-blue .treeview-menu > li > span > a:hover {
+    color: #FFF;
+}
+
 .success {
     background:#00FF7F; /* springgreen */
 }

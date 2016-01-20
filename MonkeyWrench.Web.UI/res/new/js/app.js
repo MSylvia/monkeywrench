@@ -393,6 +393,12 @@ function _init() {
       var $this = $(this);
       var checkElement = $this.next();
 
+      if (!checkElement.is('.treeview-menu')) {
+        checkElement = $this.parent("span").next();
+        console.log("New: " + checkElement);
+      }
+
+
       //Check if the next element is a menu and is visible
       if ((checkElement.is('.treeview-menu')) && (checkElement.is(':visible'))) {
         //Close the menu
@@ -425,7 +431,7 @@ function _init() {
         });
       }
       //if this isn't a link, prevent the page from being redirected
-      if (checkElement.is('.treeview-menu')) {
+      if (checkElement.is('.treeview-menu') && $this.attr('href') == '#') {
         e.preventDefault();
       }
     });
