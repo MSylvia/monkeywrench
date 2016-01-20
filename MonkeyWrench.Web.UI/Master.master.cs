@@ -91,7 +91,7 @@ public partial class Master : System.Web.UI.MasterPage
 		}
 
 		if (tree_response != null) {
-			//CreateTree ();
+			CreateTree ();
 			CreateHostStatus ();
 		}
 
@@ -182,6 +182,13 @@ public partial class Master : System.Web.UI.MasterPage
 		tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow (null, "Tags", 0, 1, true, div, true)));
 		tableMainTree.Rows.Add (Utils.CreateTableRow (div));
 		WriteTags (tree_response.Tags, tableMainTree, 1, div);
+
+
+		var tags = new List<string> ();
+		foreach (var tag in tree_response.Tags) {
+			tags.Add(string.Format("<li><a href=\"{0}?tags={1}\" title='{2}'><i class=\"fa fa-circle-o\"></i>{2}</a></li>", MonkeyWrench.Configuration.IndexPage, HttpUtility.UrlEncode (tag), tag));
+		}
+		BuildLaneTags.InnerHtml = string.Join ("\n", tags.ToArray ());
 	}
 
 	public void WriteTags (List<string> tags, Table tableMain, int level, Panel containing_div)

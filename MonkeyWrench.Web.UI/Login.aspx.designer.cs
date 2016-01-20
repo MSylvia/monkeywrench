@@ -14,23 +14,19 @@ public partial class Login {
 	
 	protected System.Web.UI.WebControls.Content Content2;
 	
-	protected System.Web.UI.WebControls.Label lblUser;
-	
-	protected System.Web.UI.WebControls.TextBox txtUser;
-	
-	protected System.Web.UI.WebControls.Label lblPassword;
-	
-	protected System.Web.UI.WebControls.TextBox txtPassword;
+	protected System.Web.UI.WebControls.HiddenField txtReferrer;
 	
 	protected System.Web.UI.WebControls.Label lblMessage;
 	
-	protected System.Web.UI.WebControls.HiddenField txtReferrer;
+	protected System.Web.UI.WebControls.Label lblMessageOpenId;
+	
+	protected System.Web.UI.WebControls.TextBox txtUser;
+	
+	protected System.Web.UI.WebControls.TextBox txtPassword;
 	
 	protected System.Web.UI.WebControls.Button cmdLogin;
 	
 	protected System.Web.UI.WebControls.Button cmdLoginOpenId;
 	
 	protected System.Web.UI.WebControls.Button cmdLoginOauth;
-	
-	protected System.Web.UI.WebControls.Label lblMessageOpenId;
 }

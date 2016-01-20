@@ -70,8 +70,6 @@ public partial class Login : System.Web.UI.Page
 			cmdLogin.Visible = Configuration.AllowPasswordLogin;
 			txtPassword.Visible = Configuration.AllowPasswordLogin;
 			txtUser.Visible = Configuration.AllowPasswordLogin;
-			lblUser.Visible = Configuration.AllowPasswordLogin;
-			lblPassword.Visible = Configuration.AllowPasswordLogin;
 		}
 
 		if (cmdLoginOauth.Visible && Request.QueryString.GetValues ("state") != null) {

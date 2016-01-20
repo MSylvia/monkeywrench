@@ -129,19 +129,14 @@
 			    <i class="fa fa-angle-left pull-right"></i>
 			  </a>
 			  <ul class="treeview-menu">
+			  	<li ID="BuildLaneTags" class="treeview" runat="server" />
 			  </ul>
 			</li>
 
 			<li class="header">BOT STATUS</li>
 			<li ID="HostStatusWorking" class="treeview" runat="server" />
 			<li ID="HostStatusIdle" class="treeview" runat="server" />
-
 			<asp:Table ID="tableMainTree" runat="server" CellPadding="0" CellSpacing="0" CssClass="lefttree" />
-        	<asp:Table ID="tableHostStatus" runat="server" CellPadding="0" CellSpacing="0" CssClass="hoststatus">
-          		<asp:TableHeaderRow>
-            		<asp:TableHeaderCell Text="BuildBot Status" />
-          		</asp:TableHeaderRow>
-        	</asp:Table>
 
 			</ul>
 

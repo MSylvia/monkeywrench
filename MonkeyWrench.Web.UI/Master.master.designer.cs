@@ -18,13 +18,13 @@ public partial class Master {
 	
 	protected System.Web.UI.WebControls.Literal cellLogout;
 	
+	protected System.Web.UI.HtmlControls.HtmlGenericControl BuildLaneTags;
+	
 	protected System.Web.UI.HtmlControls.HtmlGenericControl HostStatusWorking;
 	
 	protected System.Web.UI.HtmlControls.HtmlGenericControl HostStatusIdle;
 	
 	protected System.Web.UI.WebControls.Table tableMainTree;
-	
-	protected System.Web.UI.WebControls.Table tableHostStatus;
 	
 	protected System.Web.UI.HtmlControls.HtmlForm form1;
 	
