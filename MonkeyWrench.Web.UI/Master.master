@@ -54,24 +54,25 @@
 				<asp:Literal ID="cellLogout" runat="server" />
 
               <%-- User Account: style can be found in dropdown.less --%>
+              <% if(adminmenu.Visible) { %>
               <li class="dropdown user user-menu">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                   <img src="res/new/img/me.jpeg" class="user-image" alt="User Image">
-                  <span class="hidden-xs">Matt Sylvia</span>
+                  <span class="hidden-xs"><%= this.userFullName.Text %></span>
                 </a>
                 <ul class="dropdown-menu">
                   <%-- User image --%>
                   <li class="user-header">
                     <img src="res/new/img/me.jpeg" class="img-circle" alt="User Image">
                     <p>
-                      Matt Sylvia - Release Engineering
-                      <small>matthew.sylvia@xamarin.com</small>
+                      <asp:Literal ID="userFullName" runat="server" /> - <asp:Literal ID="userRole" runat="server" />
+                      <small><asp:Literal ID="userEmail" runat="server" /></small>
                     </p>
                   </li>
                   <%-- Menu Footer--%>
                   <li class="user-footer">
                     <div class="pull-left">
-                      <a href="#" class="btn btn-default btn-flat">Profile</a>
+                      <a href="<%= this.userProfile %>" class="btn btn-default btn-flat">Profile</a>
                     </div>
                     <div class="pull-right">
                       <a href="Login.aspx?action=logout" class="btn btn-default btn-flat">Sign out</a>
@@ -79,6 +80,7 @@
                   </li>
                 </ul>
               </li>
+              <% } %>
               <%-- Control Sidebar Toggle Button --%>
               <li>
                 <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>

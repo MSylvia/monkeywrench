@@ -27,6 +27,8 @@ public partial class Master : System.Web.UI.MasterPage
 	private WebServiceResponse response;
 	private GetLeftTreeDataResponse tree_response;
 
+	public string userProfile = "";
+
 	public WebServiceLogin WebServiceLogin
 	{
 		get
@@ -69,13 +71,24 @@ public partial class Master : System.Web.UI.MasterPage
 
 	private void LoadView ()
 	{
+		
+
 		if (!Authentication.IsLoggedIn (response)) {
 			cellLogin.Text = "<li><a href='User.aspx'>Create account</a></li><li><a href='Login.aspx'>Login</a></li>";
 			adminmenu.Visible = false;
 		} else {
-			cellLogin.Text = string.Format ("<li><a href='User.aspx?username={0}'>My Account ({0})</a></li>", Utilities.GetCookie (Request, "user"));
-			cellLogout.Text = "<li><a href='Login.aspx?action=logout'>Log out</a></li>";
+			var user_response = Utils.LocalWebService.GetUser (WebServiceLogin, null, response.UserName);
+
+			string displayName = String.IsNullOrEmpty(user_response.User.fullname)? user_response.User.login : user_response.User.fullname;
+
+			cellLogin.Text = "";
+			cellLogout.Text = "";
 			adminmenu.Visible = true;
+
+			userProfile = string.Format ("User.aspx?username={0}", Utilities.GetCookie (Request, "user"));
+			userFullName.Text = displayName;
+			userEmail.Text = user_response.User.Emails.Length > 0 ? user_response.User.Emails[0] : "No email provided.";
+			userRole.Text = user_response.UserRoles.Length > 0 ? user_response.UserRoles[0] : "Standard";
 		}
 
 		if (tree_response != null)
@@ -93,9 +106,22 @@ public partial class Master : System.Web.UI.MasterPage
 		if (tree_response != null) {
 			CreateTree ();
 			CreateHostStatus ();
+			CreateTagsList ();
 		}
 
 
+	}
+
+	private void CreateTagsList() {
+		var tags = new List<string> ();
+		foreach (var tag in tree_response.Tags) {
+			string next = string.Format ("<li><a href=\"{0}?tags={1}\" title='{2}'><i class=\"fa fa-circle-o\"></i>{2}</a></li>",
+			              				MonkeyWrench.Configuration.IndexPage,
+				              			HttpUtility.UrlEncode (tag),
+				              			tag);
+			tags.Add(next);
+		}
+		BuildLaneTags.InnerHtml = string.Join ("\n", tags.ToArray ());
 	}
 
 	private void CreateHostStatus ()
@@ -181,14 +207,7 @@ public partial class Master : System.Web.UI.MasterPage
 
 		tableMainTree.Rows.Add (Utils.CreateTableRow (CreateTreeViewRow (null, "Tags", 0, 1, true, div, true)));
 		tableMainTree.Rows.Add (Utils.CreateTableRow (div));
-		WriteTags (tree_response.Tags, tableMainTree, 1, div);
-
-
-		var tags = new List<string> ();
-		foreach (var tag in tree_response.Tags) {
-			tags.Add(string.Format("<li><a href=\"{0}?tags={1}\" title='{2}'><i class=\"fa fa-circle-o\"></i>{2}</a></li>", MonkeyWrench.Configuration.IndexPage, HttpUtility.UrlEncode (tag), tag));
-		}
-		BuildLaneTags.InnerHtml = string.Join ("\n", tags.ToArray ());
+		//WriteTags (tree_response.Tags, tableMainTree, 1, div);
 	}
 
 	public void WriteTags (List<string> tags, Table tableMain, int level, Panel containing_div)
