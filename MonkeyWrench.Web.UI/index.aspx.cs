@@ -216,7 +216,7 @@ public partial class index : System.Web.UI.Page
 
 	public string ExtractRepoName(String repo) {
 		var regex = new Regex (@"github.com.(\S+)\/(\S+)");
-		var match = regex.Match (repo);
+		var match = regex.Match (repo.ToLower());
 
 		if (match.Groups [1].Length == 0 && match.Groups [2].Length == 0)
 			return null;
@@ -228,7 +228,7 @@ public partial class index : System.Web.UI.Page
 	{
 		matrix.AppendLine ("<tr>");
 		matrix.AppendLine ("<td colspan='" + (limit + 2) + "' style='text-align:left; border-left-color: #FFF; border-right-color: #FFF; " + (!first ? "" : "border-top-color: #FFF") + "'>");
-		matrix.AppendLine ("<h3>" + text + " </h3>");
+		matrix.AppendLine ("<h3>" + text + "</h3>");
 		matrix.AppendLine ("</td></tr>");
 	}
 
@@ -294,13 +294,13 @@ public partial class index : System.Web.UI.Page
 
 				lanes = lanes.FindAll (lane => lane.repository == repo).OrderBy(l => ExtractBranchName(l.max_revision)).Distinct().ToList();
 
-				RenderLanes (matrix, data, lanes, repos, wroteHeader);
+				RenderLanes (matrix, data, lanes, repos, ref wroteHeader);
 			}
 		}
 		matrix.AppendLine ("</table>");
 	}
 
-	public void RenderLanes(StringBuilder matrix, FrontPageResponse data, List<DBLane> lanes, IGrouping<string,string> repos, bool wroteHeader) {
+	public void RenderLanes(StringBuilder matrix, FrontPageResponse data, List<DBLane> lanes, IGrouping<string,string> repos, ref bool wroteHeader) {
 		
 		foreach (var lane in lanes) {
 			List<DBHostLane> hosts_lanes = data.HostLanes.FindAll (hl => hl.lane_id == lane.id);
