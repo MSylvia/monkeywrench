@@ -29,8 +29,7 @@ public partial class index : System.Web.UI.Page
 {
 	int limit = 10;
 
-	private new Master Master
-	{
+	private new Master Master {
 		get { return base.Master as Master; }
 	}
 
@@ -53,9 +52,9 @@ public partial class index : System.Web.UI.Page
 		string lanes_str = null;
 		string lane_ids_str = null;
 
-		string [] lanes = null;
+		string[] lanes = null;
 		List<int> lane_ids = null;
-		string [] tags = null;
+		string[] tags = null;
 
 		if (!string.IsNullOrEmpty (Request ["show_all"])) {
 			// do nothing, default is to show all
@@ -122,21 +121,21 @@ public partial class index : System.Web.UI.Page
 			return "Never";
 
 		if (diff.TotalHours < 1) {
-			value = (int) diff.TotalMinutes;
+			value = (int)diff.TotalMinutes;
 			if (value == 1) {
 				return "1 minute ago";
 			} else {
 				return string.Format ("{0} minutes ago", value);
 			}
 		} else if (diff.TotalDays < 1) {
-			value = (int) diff.TotalHours;
+			value = (int)diff.TotalHours;
 			if (value == 1) {
 				return "1 hour ago";
 			} else {
 				return string.Format ("{0} hours ago", value);
 			}
 		} else if (diff.TotalDays < 3) {
-			value = (int) diff.TotalDays;
+			value = (int)diff.TotalDays;
 			if (value == 1) {
 				return "1 day ago";
 			} else {
@@ -214,14 +213,15 @@ public partial class index : System.Web.UI.Page
 		return null;
 	}
 
-	public string ExtractRepoName(String repo) {
+	public string ExtractRepoName (String repo)
+	{
 		var regex = new Regex (@"github.com.(\S+)\/(\S+)");
-		var match = regex.Match (repo.ToLower());
+		var match = regex.Match (repo.ToLower ());
 
 		if (match.Groups [1].Length == 0 && match.Groups [2].Length == 0)
 			return null;
 
-		return match.Groups [1] + "/" + Path.GetFileNameWithoutExtension(match.Groups [2].ToString());
+		return match.Groups [1] + "/" + Path.GetFileNameWithoutExtension (match.Groups [2].ToString ());
 	}
 
 	void WriteWorkHeader (StringBuilder matrix, string text, bool first)
@@ -232,15 +232,16 @@ public partial class index : System.Web.UI.Page
 		matrix.AppendLine ("</td></tr>");
 	}
 
-	public string ExtractBranchName(string branch) {
-		return (string.IsNullOrEmpty(branch) ? "master" : new Regex (@".*?origin\/(.*?)(\s|$)").Match(branch).Groups[1].ToString());
+	public string ExtractBranchName (string branch)
+	{
+		return (string.IsNullOrEmpty (branch) ? "master" : new Regex (@".*?origin\/(.*?)(\s|$)").Match (branch).Groups [1].ToString ());
 	}
 
-	public List<LaneTreeNode> GetAllNodes(LaneTreeNode tree, List<DBLane> lanes) {
+	public List<LaneTreeNode> GetAllNodes (LaneTreeNode tree, List<DBLane> lanes)
+	{
 		List<LaneTreeNode> nodes = new List<LaneTreeNode> ();
 
-		tree.ForEach (new Action<LaneTreeNode> (delegate (LaneTreeNode target)
-		{
+		tree.ForEach (new Action<LaneTreeNode> (delegate (LaneTreeNode target) {
 			if (target.Children.Count == 0)
 				return;
 
@@ -248,33 +249,35 @@ public partial class index : System.Web.UI.Page
 				return;
 			} else {
 				foreach (LaneTreeNode h in target.Children) {
-					Console.WriteLine ("Lane: " + h.Lane.lane + " Children: " + h.Children.Count + " Parent: " + target.Lane.lane);
-						nodes.AddRange (GetAllNodes (h, lanes));
+					//Console.WriteLine ("Lane: " + h.Lane.lane + " Children: " + h.Children.Count + " Parent: " + target.Lane.lane);
+					nodes.AddRange (GetAllNodes (h, lanes));
 				}
 			}
 
-			if (lanes.Contains (target.Lane)) 
+			if (lanes.Contains (target.Lane))
 				nodes.Add (target);
 		}));
 
 		return nodes;
 	}
 
-	bool first = true; // little style hack for first element
+	bool first = true;
+	// little style hack for first element
 
-	public void RenderRepos(StringBuilder matrix, FrontPageResponse data, List<string> all_repos) {
+	public void RenderRepos (StringBuilder matrix, FrontPageResponse data, List<string> all_repos)
+	{
 
 		LaneTreeNode tree = null;
 		if (data.SelectedLanes.Count > 0) {
 			tree = BuildTree (data);
-			if(tree == null) // No Child Lanes
+			if (tree == null) // No Child Lanes
 				return;
 		}
 
-		foreach (var repos in all_repos.GroupBy ((r) => ExtractRepoName (r)).OrderBy( r => r.Key )){
+		foreach (var repos in all_repos.GroupBy ((r) => ExtractRepoName (r)).OrderBy( r => r.Key )) {
 			if (string.IsNullOrEmpty (repos.Key))
 				continue;
-
+			
 			bool wroteHeader = false;
 			foreach (var repo in repos) {
 				if (string.IsNullOrEmpty (repo))
@@ -285,14 +288,14 @@ public partial class index : System.Web.UI.Page
 				if (data.SelectedLanes.Count > 0) {
 					lanes = data.SelectedLanes;
 					foreach (var node in GetAllNodes (tree, lanes)) {
-						lanes.AddRange(node.GetAllNodes().Select(l => l.Lane).ToList());
+						lanes.AddRange (node.GetAllNodes ().Select (l => l.Lane).ToList ());
 					}
-				// All Lanes
+					// All Lanes
 				} else {
 					lanes = data.Lanes.FindAll (lane => lane.repository == repo);
 				}
 
-				lanes = lanes.FindAll (lane => lane.repository == repo).OrderBy(l => ExtractBranchName(l.max_revision)).Distinct().ToList();
+				lanes = lanes.FindAll (lane => lane.repository == repo).OrderBy (l => ExtractBranchName (l.max_revision)).Distinct ().ToList ();
 
 				RenderLanes (matrix, data, lanes, repos, ref wroteHeader);
 			}
@@ -300,8 +303,8 @@ public partial class index : System.Web.UI.Page
 		matrix.AppendLine ("</table>");
 	}
 
-	public void RenderLanes(StringBuilder matrix, FrontPageResponse data, List<DBLane> lanes, IGrouping<string,string> repos, ref bool wroteHeader) {
-		
+	public void RenderLanes (StringBuilder matrix, FrontPageResponse data, List<DBLane> lanes, IGrouping<string,string> repos, ref bool wroteHeader)
+	{
 		foreach (var lane in lanes) {
 			List<DBHostLane> hosts_lanes = data.HostLanes.FindAll (hl => hl.lane_id == lane.id);
 			int count = hosts_lanes.Count;
@@ -316,7 +319,7 @@ public partial class index : System.Web.UI.Page
 
 			if (!wroteHeader && lanes.Count != 0) {
 				wroteHeader = true;
-				Console.WriteLine ("header: " + repos.Key);
+				//Console.WriteLine ("header: " + repos.Key);
 				WriteWorkHeader (matrix, repos.Key, first);
 			}
 
@@ -324,14 +327,15 @@ public partial class index : System.Web.UI.Page
 			matrix.AppendFormat ("<td rowspan='{0}' title='Branch: {2}'>{1}</td>",
 				(count != 1 ? count + 1 : count),
 				lane.lane,
-				ExtractBranchName(lane.max_revision)
+				ExtractBranchName (lane.max_revision)
 			);
 
 			RenderHostLanes (matrix, data, hosts_lanes);
 		}
 	}
 
-	public void RenderHostLanes(StringBuilder matrix, FrontPageResponse data, List<DBHostLane> hosts_lanes) {
+	public void RenderHostLanes (StringBuilder matrix, FrontPageResponse data, List<DBHostLane> hosts_lanes)
+	{
 		foreach (var host_lane in hosts_lanes) {
 			var rev = FindRevisionWorkViews (data, host_lane.id);
 
@@ -365,7 +369,7 @@ public partial class index : System.Web.UI.Page
 		matrix.AppendLine ("<table class='buildstatus table'>");
 
 		// By repo to lane to hostlane to job ---------------
-		List<string> all_repos = new List<string>(data.Lanes.Select(lane => lane.repository).Distinct());
+		List<string> all_repos = new List<string> (data.Lanes.Select (lane => lane.repository).Distinct ());
 
 		RenderRepos (matrix, data, all_repos);
 
