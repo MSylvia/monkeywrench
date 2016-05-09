@@ -250,6 +250,7 @@
     <Content Include="ViewServerLog.aspx" />
     <Content Include="GetLatest.aspx" />
     <Content Include="ErrorPage.aspx" />
+    <Content Include="ViewAuditEntries.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.aspx.cs">
@@ -504,6 +505,12 @@
     </Compile>
     <Compile Include="ErrorPage.aspx.designer.cs">
       <DependentUpon>ErrorPage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewAuditEntries.aspx.cs">
+      <DependentUpon>ViewAuditEntries.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ViewAuditEntries.aspx.designer.cs">
+      <DependentUpon>ViewAuditEntries.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

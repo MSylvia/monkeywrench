@@ -57,6 +57,12 @@ namespace MonkeyWrench.WebServices
 
 		private void Audit(WebServiceLogin login, string formatStr, params Object[] formatArgs) {
 			auditLog.InfoFormat ("User {0}@{1} {2}", login.User, login.Ip4, String.Format (formatStr, formatArgs));
+
+			// Send out a notification.
+			var info = new GenericNotificationInfo();
+			info.message = "NOTICE: TEST-WRENCH-INSTANCE, If you see this tell #release-engineering. MSG:" + String.Format (formatStr, formatArgs);
+			info.state = DBState.Issues;
+			Notifications.NotifyGeneric (info);
 		}
 
 		[WebMethod]
@@ -95,6 +101,7 @@ namespace MonkeyWrench.WebServices
 			using (DB db = new DB ()) {
 				Authenticate (db, login, response);
 				response.User = login.User;
+				db.Audit (login, "WebServices.Login (login.User: {0}, login.IP: {1})", login.User, login.Ip4);
 				return response;
 			}
 		}
@@ -577,6 +584,63 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 			}
 
 			return response;
+		}
+
+		[WebMethod]
+		public GetAuditResponse GetAuditHistory (WebServiceLogin login, int limit, int offset)
+		{
+			GetAuditResponse response = new GetAuditResponse ();
+
+			using (DB db = new DB ()) {
+				Authenticate (db, login, response, true);
+
+				response.AuditEntries = new List<DBAudit> ();
+
+				using (IDbCommand cmd = db.CreateCommand ()) {
+					cmd.CommandText = @"SELECT
+					id,
+					person_id,
+					person_login,
+					ip,
+					stamp,
+					action
+
+					FROM audit";
+					cmd.CommandText += " ORDER BY id DESC ";
+					if (limit > 0)
+						cmd.CommandText += " LIMIT " + limit.ToString ();
+					if (offset > 0)
+						cmd.CommandText += " OFFSET " + offset.ToString ();
+					cmd.CommandText += ";";
+
+					response.Count = GetAuditRecordCount(db);
+
+					using (IDataReader reader = cmd.ExecuteReader ()) {
+						while (reader.Read ()) {
+							var audit = new DBAudit (reader);
+							response.AuditEntries.Add (audit);
+						}
+					}
+				}
+			}
+
+			return response;
+		}
+
+
+		public static int GetAuditRecordCount (DB db)
+		{
+			object result;
+
+			using (IDbCommand cmd = db.CreateCommand ()) {
+				cmd.CommandText = "SELECT Count(*) FROM audit";
+				result = cmd.ExecuteScalar ();
+				if (result is int)
+					return (int) result;
+				else if (result is long)
+					return (int) (long) result;
+				return 0;
+			}
 		}
 
 		[WebMethod]
