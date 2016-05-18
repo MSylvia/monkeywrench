@@ -191,4 +191,6 @@ public partial class EditHost {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.HtmlControls.HtmlGenericControl lblConfiguration;
+
+	protected System.Web.UI.WebControls.TextBox txtTags;
 }

@@ -75,6 +75,13 @@
                     (informational purposes only)
                 </asp:TableCell>
             </asp:TableRow>
+			<asp:TableRow>
+                <asp:TableCell>Tags:</asp:TableCell>
+                <asp:TableCell>
+                    <asp:TextBox ID="txtTags" runat="server" Width="600px"></asp:TextBox>
+                </asp:TableCell>
+                <asp:TableCell>Comma-separated list of tags for this host. Descendant hosts do not inherit tags. Tags can contain any character except commas (in particular spaces are allowed).</asp:TableCell>
+            </asp:TableRow>
             <asp:TableRow>
                 <asp:TableCell>
                     Enabled

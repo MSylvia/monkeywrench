@@ -595,6 +595,7 @@ GROUP BY RevisionWork.id, RevisionWork.lane_id, RevisionWork.host_id, RevisionWo
 					response.Variables = DBEnvironmentVariable_Extensions.Find (db, null, response.Host.id, null);
 					response.MasterHosts = GetMasterHosts (db, response.Host);
 					response.SlaveHosts = GetSlaveHosts (db, response.Host);
+					response.Tags = response.Host.GetTags(db);
 				}
 				response.Hosts = db.GetHosts ();
 			}
@@ -1148,7 +1149,7 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 		}
 
 		[WebMethod]
-		public void EditHostWithPassword (WebServiceLogin login, DBHost host, string password)
+		public void EditHostWithPassword (WebServiceLogin login, DBHost host, string password, string[] tags = null)
 		{
 			using (DB db = new DB ()) {
 				using (IDbTransaction transaction = db.BeginTransaction ()) {
@@ -1156,6 +1157,27 @@ ORDER BY Lanefiles.lane_id, Lanefile.name ASC;", response.Lane.id).AppendLine ()
 
 					var oldHost = FindHost (db, host.id, null);
 					host.Save (db);
+
+					using (var cmd = db.CreateCommand())
+					{
+						cmd.CommandText = "DELETE FROM HostTag WHERE host_id = @host_id;";
+						DB.CreateParameter(cmd, "host_id", host.id);
+						cmd.ExecuteNonQuery();
+
+						if (tags != null)
+						{
+							cmd.CommandText = "INSERT INTO HostTag (host_id, tag) VALUES (@host_id, @tag);";
+							var tagParam = cmd.CreateParameter();
+							tagParam.ParameterName = "tag";
+							cmd.Parameters.Add(tagParam);
+
+							foreach (var tag in tags)
+							{
+								tagParam.Value = tag;
+								cmd.ExecuteNonQuery();
+							}
+						}
+					}
 
 					// NOTE: it is possible to change the password of an existing account by creating 
 					// a host with the same name and specify the password. Given that admin rights

@@ -190,6 +190,8 @@
     <Compile Include="Logic\GetLeftTreeDataResponse.cs" />
     <Compile Include="Database\DBGitHubIdentity.cs" />
     <Compile Include="Database\DBGitHubIdentity.generated.cs" />
+    <Compile Include="Database\DBHostTag.cs" />
+    <Compile Include="Database\DBHostTag.generated.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CustomTypes.sql" />

@@ -642,6 +642,26 @@ namespace MonkeyWrench
 			return result;
 		}
 
+		public DBHost GetHost(int id)
+		{
+			using (IDbCommand cmd = CreateCommand())
+			{
+				cmd.CommandText = "SELECT * FROM Host WHERE id = @id ";
+				DB.CreateParameter(cmd, "id", id);
+				using (IDataReader reader = cmd.ExecuteReader())
+				{
+					if (!reader.Read())
+						return null;
+					if (reader.IsDBNull(0))
+						return null;
+
+					DBHost host = new DBHost();
+					host.Load(reader);
+					return host;
+				}
+			}
+		}
+
 		public List<DBHostLane> GetAllHostLanes ()
 		{
 			List<DBHostLane> result = new List<DBHostLane> ();

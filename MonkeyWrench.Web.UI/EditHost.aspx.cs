@@ -120,6 +120,8 @@ public partial class EditHost : System.Web.UI.Page
 				txtPassword.Text = response.Person.password;
 			}
 
+			if (response.Tags != null)
+				txtTags.Text = string.Join(",", response.Tags.ConvertAll<string>((DBHostTag tag) => tag.tag).ToArray());
 		}
 
 		editorVariables.Host = response.Host;
@@ -211,7 +213,7 @@ public partial class EditHost : System.Web.UI.Page
 		host.description = txtDescription.Text;
 		host.queuemanagement = cmbQueueManagement.SelectedIndex;
 		host.enabled = chkEnabled.Checked;
-		Utils.LocalWebService.EditHostWithPassword (Master.WebServiceLogin, host, txtPassword.Text);
+		Utils.LocalWebService.EditHostWithPassword (Master.WebServiceLogin, host, txtPassword.Text, !string.IsNullOrEmpty(txtTags.Text) ? txtTags.Text.Split(',') : null);
 		RedirectToSelf ();
 	}
 

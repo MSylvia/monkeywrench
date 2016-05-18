@@ -73,6 +73,21 @@ namespace MonkeyWrench.Database
 			return result;
 		}
 
+		public static List<DBHostTag> GetTags(this DBHost me, DB db)
+		{
+			var result = new List<DBHostTag>();
+			using (IDbCommand cmd = db.CreateCommand())
+			{
+				cmd.CommandText = "SELECT * FROM HostTag WHERE host_id = " + me.id.ToString() + ";";
+				using (var reader = cmd.ExecuteReader())
+				{
+					while (reader.Read())
+						result.Add(new DBHostTag(reader));
+				}
+			}
+			return result;
+		}
+
 		public static void Delete (DB db, int host_id)
 		{
 			using (IDbTransaction transaction = db.BeginTransaction ()) {

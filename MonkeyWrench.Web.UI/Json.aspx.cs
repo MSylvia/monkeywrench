@@ -15,6 +15,7 @@ namespace MonkeyWrench.Web.UI
 	using MonkeyWrench.DataClasses;
 	using MonkeyWrench.DataClasses.Logic;
 	using MonkeyWrench.Web.WebServices;
+	using MonkeyWrench.Database;
 
 	public partial class Json : System.Web.UI.Page
 	{
@@ -234,6 +235,7 @@ namespace MonkeyWrench.Web.UI
 						{ "enabled", host.enabled },
 						{ "description", host.description },
 						{ "architecture", host.architecture },
+						{ "tags", host.GetTags(db).Select(tag => tag.tag) },
 						{ "last_seen", status != null ? status.report_date.ToString ("yyyy/MM/dd HH:mm:ss UTC") : "" },
 						{ "last_job", this.GetHostHistory (db, host.id)},
 					});

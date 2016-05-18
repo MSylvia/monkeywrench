@@ -27,5 +27,6 @@ namespace MonkeyWrench.DataClasses.Logic
 		public List<DBHost> MasterHosts;
 		public List<DBHost> SlaveHosts;
 		public List<DBHost> Hosts;
+		public List<DBHostTag> Tags;
 	}
 }
