@@ -10,6 +10,7 @@
         <asp:TableHeaderRow>
             <asp:TableHeaderCell>Bot</asp:TableHeaderCell>
             <asp:TableHeaderCell>Last Version</asp:TableHeaderCell>
+			<asp:TableHeaderCell>Last IP</asp:TableHeaderCell>
             <asp:TableHeaderCell>Last Report Date</asp:TableHeaderCell>
             <asp:TableHeaderCell>Configured Version</asp:TableHeaderCell>
         </asp:TableHeaderRow>

@@ -21,6 +21,7 @@ namespace MonkeyWrench.DataClasses.Logic
 	public class BuildBotStatus
 	{
 		public string Host;
+		public string IPAddress;
 		public string AssemblyVersion;
 		public string AssemblyDescription;
 

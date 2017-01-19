@@ -21,11 +21,13 @@ namespace MonkeyWrench.DataClasses
 		private int _host_id;
 		private string _version;
 		private string _description;
+		private string _ipaddress;
 		private DateTime _report_date;
 
 		public int @host_id { get { return _host_id; } set { _host_id = value; } }
 		public string @version { get { return _version; } set { _version = value; } }
 		public string @description { get { return _description; } set { _description = value; } }
+		public string @ipaddress { get { return _ipaddress; } set { _ipaddress = value; } }
 		public DateTime @report_date { get { return _report_date; } set { _report_date = value; } }
 
 
@@ -39,7 +41,7 @@ namespace MonkeyWrench.DataClasses
 		{
 			get
 			{
-				return new string [] { "host_id", "version", "description", "report_date" };
+				return new string [] { "host_id", "version", "description", "ipaddress", "report_date" };
 			}
 		}
         

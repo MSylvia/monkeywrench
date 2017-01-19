@@ -23,6 +23,9 @@ using MonkeyWrench;
 using MonkeyWrench.DataClasses;
 using MonkeyWrench.DataClasses.Logic;
 using MonkeyWrench.Web.WebServices;
+using System.Net.NetworkInformation;
+using System.Linq;
+using System.Net.Sockets;
 
 namespace MonkeyWrench.Builder
 {
@@ -73,6 +76,7 @@ namespace MonkeyWrench.Builder
 
 				status = new BuildBotStatus ();
 				status.Host = Configuration.Host;
+				status.IPAddress = LocalIPv4();
 				status.FillInAssemblyAttributes ();
 				status_response = WebService.ReportBuildBotStatus (WebService.WebServiceLogin, status);
 				if (status_response.Exception != null) {
@@ -699,6 +703,28 @@ namespace MonkeyWrench.Builder
 					WebService.UploadFilesSafe (info.work, files.ToArray (), hidden.ToArray ());
 				}
 			}
+		}
+
+		public static List<string> GetIPv4AddressesForInterface(NetworkInterface iface)
+		{
+			return iface.GetIPProperties().UnicastAddresses
+				.Where(a => a.Address.AddressFamily == AddressFamily.InterNetwork)
+				.Select(a => a.Address.ToString())
+				.ToList();
+		}
+
+		public static string LocalIPv4()
+		{
+			string result = "";
+			foreach (NetworkInterface iface in NetworkInterface.GetAllNetworkInterfaces())
+			{
+				string[] addresses = GetIPv4AddressesForInterface(iface).ToArray();
+				if (iface.NetworkInterfaceType == NetworkInterfaceType.Ethernet && iface.OperationalStatus == OperationalStatus.Up && addresses.Length > 0)
+				{
+					result = string.Join("", addresses);
+				}
+			}
+			return result;
 		}
 	}
 }

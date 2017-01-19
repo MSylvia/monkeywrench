@@ -2866,16 +2866,17 @@ WHERE Work.revisionwork_id = @revisionwork_id ";
 			using (DB db = new DB ()) {
 				VerifyUserInRole (db, login, Roles.BuildBot, true);
 
-				log.DebugFormat ("BuildBot '{2}' reported in. v{0}: {1}", status.AssemblyVersion, status.AssemblyDescription, status.Host);
+				log.DebugFormat ("BuildBot '{2}' reported in. v{0}: {1}@{3}", status.AssemblyVersion, status.AssemblyDescription, status.Host, login.Ip4);
 
 				using (IDbCommand cmd = db.CreateCommand ()) {
 					cmd.CommandText = @"
 DELETE FROM BuildBotStatus WHERE host_id = (SELECT id FROM Host WHERE host = @host);
-INSERT INTO BuildBotStatus (host_id, version, description) VALUES ((SELECT id FROM Host WHERE host = @host), @version, @description);
+INSERT INTO BuildBotStatus (host_id, version, description, ipaddress) VALUES ((SELECT id FROM Host WHERE host = @host), @version, @description, @ipaddress);
 ";
 					DB.CreateParameter (cmd, "host", status.Host);
 					DB.CreateParameter (cmd, "version", status.AssemblyVersion);
 					DB.CreateParameter (cmd, "description", status.AssemblyDescription);
+					DB.CreateParameter (cmd, "ipaddress", status.IPAddress);
 					cmd.ExecuteNonQuery ();
 				}
 				using (IDbCommand cmd = db.CreateCommand ()) {

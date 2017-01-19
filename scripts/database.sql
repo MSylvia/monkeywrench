@@ -441,6 +441,7 @@ CREATE TABLE BuildBotStatus (
 	host_id        int       NOT NULL REFERENCES Host (id) ON DELETE CASCADE,
 	version        text      NOT NULL DEFAULT '',
 	description    text      NOT NULL DEFAULT '',
+	ipaddress      text      NOT NULL DEFAULT '',
 	report_date    timestamp NOT NULL DEFAULT now ()
 );
 
